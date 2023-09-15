@@ -29,7 +29,7 @@ stop: | $(DOCKER_COMPOSE_DEPS) ## Stop development env
 
 .PHONY: build
 build: | $(DOCKER_COMPOSE_DEPS) ## Build docker image
-	$(DOCKER_COMPOSE_CMD) build --no-cache
+	$(DOCKER_COMPOSE_CMD) build
 
 .PHONY: log
 log: | $(DOCKER_COMPOSE_DEPS) ## Show docker container logs
