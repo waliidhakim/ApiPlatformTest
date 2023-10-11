@@ -33,19 +33,48 @@ MAILER_DSN=smtp://localhost:1025
 DATABASE_URL="postgresql://symfony:password@localhost:5432/postgres?serverVersion=15&charset=utf8"
 ```
 
-
-If make is not enabled : 
+If make is not enabled or if it doesn't work :
 
 ```shell
-# Si make n'est pas installé 
+# make install :
 > docker compose build
-> docker compose up -d
-> docker compose exec -it php sh
+> docker compose run php composer install -o
+> docker compose run php php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction
+> docker compose up -d --remove-orphans
+> docker compose exec php php bin/console doctrine:database:create --if-not-exists
+> docker compose exec php php bin/console doctrine:migrations:migrate -n 
 
-# Le terminal du container s'ouvre :
-> composer install
-> bin/console lexik:jwt:generate-keypair -n --overwrite
-> bin/console doctrine:database:create --if-not-exists
-> bin/console doctrine:migrations:migrate -n
-> bin/console hautelook:fixture:load -n
+# make stop :
+> docker compose down
+
+# make start :
+> docker compose up -d --remove-orphans
+
+# make restart :
+> docker compose down
+> docker compose up -d --remove-orphans
+
+# make sh :
+> docker compose exec php sh
+
+# make migration :
+> docker compose exec php php bin/console make:migration -n
+
+# make migrate :
+> docker compose exec php php bin/console doctrine:migrations:migrate -n
+
+# make composer :
+> docker compose exec php install -o
+
+# make data :
+> docker compose exec php php bin/console hautelook:fixture:load --no-interaction
+
+# make cache :
+> docker compose exec php php bin/console cache:clear
+
+# make bddReset :
+> docker compose down database --volumes
+> docker compose up -d database
+> docker compose exec php php bin/console doctrine:database:create --if-not-exists
+> docker compose exec php php bin/console doctrine:migrations:migrate -n
 ```
