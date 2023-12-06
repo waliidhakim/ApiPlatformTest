@@ -4,14 +4,22 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Dto\PatchUserDto;
+use App\Dto\RegisterEmployeeDto;
+use App\Dto\RegisterUserDto;
 use App\Repository\UserRepository;
+use App\State\GetEmployeesStateProvider;
+use App\State\RegisterEmployeeProcessor;
 use App\State\UserPasswordHasher;
+//use App\State\UserPrestataireStateProvider;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -22,37 +30,57 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+
+
 #[ApiResource(
-
-    operations: [
-        new Get(
-            security: "is_granted('ROLE_ADMIN')",
-            normalizationContext: ['user:read']
-
-        ),
+    operations : [
         new GetCollection(
             security: "is_granted('ROLE_ADMIN')",
-            securityMessage : "You are not authorized to view this page !",
-            normalizationContext: ['user:read']
+            securityMessage : "You are not authorized to perform this action !",
+            normalizationContext: ['groups' => ['user:read']]
         ),
-//        new Put(
-//            security: "is_granted('ROLE_USER')",
-//        ),
-        new Patch (
-            security: "is_granted('ROLE_USER')",
-            input: PatchUserDto::class,
-            denormalizationContext: ['user:update']
+        new GetCollection(
+            security: "is_granted('ROLE_MANAGER')",
+            securityMessage : "You are not authorized to perform this action !",
+            uriTemplate: "/users/employees",
+            provider: GetEmployeesStateProvider::class ,
+            normalizationContext: ['groups' => ['user:read']]
+        ),
+        new Get(
+            security: "is_granted('ROLE_ADMIN') or ( is_granted('ROLE_USER') and object.getEmail() == user.getEmail())",
+            securityMessage : "You are not authorized to perform this action !",
+            normalizationContext: ['groups' => ['user:read']]
+
         ),
         new Post(
             processor: UserPasswordHasher::class,
+//            input: RegisterUserDto::class,
             validationContext: ['groups' => ['Default', 'user:create']],
             name: 'registration',
             uriTemplate: '/register',
-            denormalizationContext : ['user:create']
+            denormalizationContext :  ['groups' => ['user:create']]
+        ),
+
+        new Post(
+            //////////////////////////////////
+            processor: RegisterEmployeeProcessor::class ,
+            input: RegisterEmployeeDto::class ,
+            security: "is_granted('ROLE_MANAGER')",
+            securityMessage : "You are not authorized to perform this action !",
+            validationContext: ['groups' => ['Default', 'user:create']],
+            uriTemplate: '/registerEmployee',
+            normalizationContext: ['groups' => ['user:read']]
+        ),
+        new Put(
+            security: "is_granted('ROLE_ADMIN') or ( is_granted('ROLE_USER') and object.getEmail() == user.getEmail())",
+            securityMessage : "You are not authorized to perform this action !",
+            denormalizationContext :  ['groups' => ['user:update']]
+        ),
+        new Delete(
+            security: "is_granted('ROLE_ADMIN')",
+            securityMessage : "You are not authorized to perform this action !",
         )
-
-        ],
-
+    ]
 
 )]
 
@@ -65,40 +93,70 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
 //    #[Groups(['user:read'])]
+    #[Groups('prestataire:approuval')]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(['user:read', 'user:create'])]
+    #[Groups(['user:read','user:create','establishment:read'])]
     #[Assert\NotBlank(groups: ['user:create'])]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private array $roles = [];
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['user:create'])]
+    #[Assert\NotBlank(groups: ['user:create'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:create', 'user:update','user:read'])]
+    #[Groups(['user:create'])]
     #[Assert\NotBlank(groups: ['user:create'])]
+    private ?string $confirmPassword = null;
+
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:read','user:create', 'user:update','establishment:read'])]
+    #[Assert\NotBlank(groups: ['user:create','prestataire:collection:read'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:create', 'user:update','user:read'])]
+    #[Groups(['user:create', 'user:update','user:read','prestataire:collection:read','establishment:read'])]
     #[Assert\NotBlank(groups: ['user:create'])]
     private ?string $lastname = null;
 
+
+    #[ORM\OneToMany(mappedBy: 'issuedBy', targetEntity: Feedback::class)]
+
+//    #[Groups(['user:read'])]
+    private Collection $feedbacks;
+
+    #[ORM\OneToMany(mappedBy: 'bookedBy', targetEntity: Booking::class)]
+    private Collection $bookings;
+
+    #[ORM\ManyToOne(inversedBy: 'employees',cascade: ["remove"])]
+    private ?Establishment $establishment = null;
+
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Prestataire::class)]
+    private Collection $prestataires;
+
+    #[ORM\OneToMany(mappedBy: 'manager', targetEntity: Establishment::class)]
+    private Collection $managedEstablishments;
+
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(groups: ['user:create'])]
-    #[Groups(['user:create'])]
-    private ?string $plainPassword = null;
+    private ?string $status = null;
 
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
+        $this->feedbacks = new ArrayCollection();
+        $this->bookings = new ArrayCollection();
+        $this->prestataires = new ArrayCollection();
+        $this->managedEstablishments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -196,14 +254,158 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPlainPassword(): ?string
+    public function getConfirmPassword(): ?string
     {
-        return $this->plainPassword;
+        return $this->confirmPassword;
     }
 
-    public function setPlainPassword(?string $plainPassword): static
+    public function setConfirmPassword(?string $confirmPassword): static
     {
-        $this->plainPassword = $plainPassword;
+        $this->confirmPassword = $confirmPassword;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Feedback>
+     */
+    public function getFeedbacks(): Collection
+    {
+        return $this->feedbacks;
+    }
+
+    public function addFeedback(Feedback $feedback): static
+    {
+        if (!$this->feedbacks->contains($feedback)) {
+            $this->feedbacks->add($feedback);
+            $feedback->setIssuedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeedback(Feedback $feedback): static
+    {
+        if ($this->feedbacks->removeElement($feedback)) {
+            // set the owning side to null (unless already changed)
+            if ($feedback->getIssuedBy() === $this) {
+                $feedback->setIssuedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Booking>
+     */
+    public function getBookings(): Collection
+    {
+        return $this->bookings;
+    }
+
+    public function addBooking(Booking $booking): static
+    {
+        if (!$this->bookings->contains($booking)) {
+            $this->bookings->add($booking);
+            $booking->setBookedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBooking(Booking $booking): static
+    {
+        if ($this->bookings->removeElement($booking)) {
+            // set the owning side to null (unless already changed)
+            if ($booking->getBookedBy() === $this) {
+                $booking->setBookedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getEstablishment(): ?Establishment
+    {
+        return $this->establishment;
+    }
+
+    public function setEstablishment(?Establishment $establishment): static
+    {
+        $this->establishment = $establishment;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Prestataire>
+     */
+    public function getPrestataires(): Collection
+    {
+        return $this->prestataires;
+    }
+
+    public function addPrestataire(Prestataire $prestataire): static
+    {
+        if (!$this->prestataires->contains($prestataire)) {
+            $this->prestataires->add($prestataire);
+            $prestataire->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrestataire(Prestataire $prestataire): static
+    {
+        if ($this->prestataires->removeElement($prestataire)) {
+            // set the owning side to null (unless already changed)
+            if ($prestataire->getOwner() === $this) {
+                $prestataire->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Establishment>
+     */
+    public function getManagedEstablishments(): Collection
+    {
+        return $this->managedEstablishments;
+    }
+
+    public function addManagedEstablishment(Establishment $managedEstablishment): static
+    {
+        if (!$this->managedEstablishments->contains($managedEstablishment)) {
+            $this->managedEstablishments->add($managedEstablishment);
+            $managedEstablishment->setManager($this);
+        }
+
+        return $this;
+    }
+
+    public function removeManagedEstablishment(Establishment $managedEstablishment): static
+    {
+        if ($this->managedEstablishments->removeElement($managedEstablishment)) {
+            // set the owning side to null (unless already changed)
+            if ($managedEstablishment->getManager() === $this) {
+                $managedEstablishment->setManager(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
