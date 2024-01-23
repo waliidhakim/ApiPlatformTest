@@ -71,7 +71,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/registerEmployee',
             normalizationContext: ['groups' => ['user:read']]
         ),
-        new Put(
+        new Patch(
             security: "is_granted('ROLE_ADMIN') or ( is_granted('ROLE_USER') and object.getEmail() == user.getEmail())",
             securityMessage : "You are not authorized to perform this action !",
             denormalizationContext :  ['groups' => ['user:update']]
@@ -99,6 +99,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     #[Groups(['user:read','user:create','establishment:read'])]
     #[Assert\NotBlank(groups: ['user:create'])]
+    #[Assert\Email(groups: ['user:create'], message:"Invalid email adress")]
     private ?string $email = null;
 
     #[ORM\Column]

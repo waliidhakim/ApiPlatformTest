@@ -12,6 +12,7 @@ use App\Repository\PrestationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
 #[ApiResource(
@@ -20,10 +21,12 @@ use Doctrine\ORM\Mapping as ORM;
         new Get(
             security: "is_granted('ROLE_ADMIN')",
             securityMessage : "You don't have permission to perform this action",
+            normalizationContext :  ['groups' => ['prestation:read']]
         ),
         new GetCollection(
             security: "is_granted('ROLE_ADMIN')",
             securityMessage : "You don't have permission to perform this action",
+            normalizationContext :  ['groups' => ['prestation:collection:read']]
         ),
         new Patch (
 
@@ -46,24 +49,31 @@ class Prestation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['prestation:collection:read','prestation:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['prestation:collection:read','prestation:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['prestation:collection:read','prestation:read'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['prestation:collection:read','prestation:read'])]
     private ?int $duration = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['prestation:collection:read','prestation:read'])]
     private ?float $price = null;
 
     #[ORM\ManyToOne(inversedBy: 'prestations')]
+    #[Groups(['prestation:read'])]
     private ?Establishment $establishment = null;
 
     #[ORM\ManyToOne(inversedBy: 'prestations')]
+    #[Groups(['prestation:collection:read'])]
     private ?Category $category = null;
 
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Booking::class)]

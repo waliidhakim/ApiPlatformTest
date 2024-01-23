@@ -59,6 +59,8 @@ class CustomPurger implements ORMPurgerInterface
 
         try {
             $conn->beginTransaction();
+            $conn->executeQuery('DELETE FROM prestation');
+            $conn->executeQuery('DELETE FROM category');
             $conn->executeQuery('DELETE FROM establishment');
             $conn->executeQuery('DELETE FROM prestataire');
             $conn->executeQuery('DELETE FROM "user"');

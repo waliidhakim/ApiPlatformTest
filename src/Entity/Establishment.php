@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "is_granted('ROLE_ADMIN')",
 //           security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user",
             securityMessage : "You don't have permission to access this page",
-            normalizationContext :  ['groups' => ['establishment:read']]
+            normalizationContext :  ['groups' => ['establishment:read','prestation:read']]
         ),
         new GetCollection(
             security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_PRESTATAIRE') )",
@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider : GetEstablishmentStateProvider::class ,
             validationContext: ['groups' => ['Default', 'establishment:read']],
             
-            normalizationContext :  ['groups' => ['establishment:read']]
+            normalizationContext :  ['groups' => ['establishment:read'],['prestation:read']]
         ),
         new Patch (
 
@@ -80,8 +80,8 @@ class Establishment
     #[Groups([
             'establishment:read',
             'establishment:create',
-            'prestataire:establishments:read'
-
+            'prestataire:establishments:read',
+            'prestation:read'
     ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $name = null;
@@ -91,6 +91,7 @@ class Establishment
         establishment:read',
         'establishment:create',
         'prestataire:establishments:read',
+        'prestation:read'
     ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $address = null;
@@ -108,7 +109,7 @@ class Establishment
 
     private ?Prestataire $relateTo = null;
 
-    #[ORM\OneToMany(mappedBy: 'establishment', targetEntity: Prestation::class)]
+    #[ORM\OneToMany(mappedBy: 'establishment', targetEntity: Prestation::class, cascade: ['remove'])]
     private Collection $prestations;
 
     #[ORM\Column(length: 255, nullable: true)]

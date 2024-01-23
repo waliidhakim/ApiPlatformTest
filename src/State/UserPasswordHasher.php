@@ -7,6 +7,8 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -14,7 +16,8 @@ final readonly class UserPasswordHasher implements ProcessorInterface
 {
     public function __construct(private ProcessorInterface $processor,
                                 private UserPasswordHasherInterface $passwordHasher,
-                                private EntityManagerInterface $manager)
+                                private EntityManagerInterface $manager,
+                                private JWTTokenManagerInterface $JWTManager)
     {
     }
 
@@ -31,7 +34,7 @@ final readonly class UserPasswordHasher implements ProcessorInterface
 
         $user = new User();
         $user->setFirstname($data->getFirstname());
-        $user->setLastname($data->getFirstname());
+        $user->setLastname($data->getLastname());
         $user->setEmail($data->getEmail());
 
         $hashedPassword = $this->passwordHasher->hashPassword(
@@ -42,9 +45,14 @@ final readonly class UserPasswordHasher implements ProcessorInterface
         $user->setPassword($hashedPassword);
         $user->eraseCredentials();
 
+        $token = $this->JWTManager->create($user);
+        $response = new JsonResponse(['user' => $user, 'token' => $token]);
+
         $this->manager->persist($user);
         $this->manager->flush();
 
+
         return $this->processor->process($user, $operation, $uriVariables, $context);
+//        return $response;
     }
 }

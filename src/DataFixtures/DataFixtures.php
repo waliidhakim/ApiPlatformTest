@@ -2,149 +2,156 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Category;
 use App\Entity\Establishment;
 use App\Entity\Prestataire;
+use App\Entity\Prestation;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ObjectManager;
 use App\Repository\UserRepository;
+use Faker\Generator;
+use Faker\Provider;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-
+use Doctrine\Common\Collections\Collection;
 class DataFixtures extends Fixture
 {
-    public function __construct(private UserPasswordHasherInterface $passwordHasher)
+    private readonly Generator $faker;
+    public function __construct(
+        private readonly UserPasswordHasherInterface $passwordHasher,
+
+    )
     {
+        $faker = new Generator();
+        $faker->addProvider(new Provider\fr_FR\Person($faker));
+        $faker->addProvider(new Provider\fr_FR\Address($faker));
+        $faker->addProvider(new Provider\fr_FR\PhoneNumber($faker));
+        $faker->addProvider(new Provider\fr_FR\Company($faker));
+        $faker->addProvider(new Provider\Lorem($faker));
+        $faker->addProvider(new Provider\Internet($faker));
+        $faker->addProvider(new Provider\Image($faker));
+
+        $this->faker = $faker;
     }
 
     public function load(ObjectManager $manager): void
     {
+        //simple users
+        for($i=0; $i<10; $i++)
+        {
+            $user = $this->createUser("user$i", "user$i", ['ROLE_USER']);
+            $manager->persist($user);
+        }
+
         //user admin
-        $admin = $this->createAdmin();
+        $admin = $this->createUser("admin", "admin",['ROLE_ADMIN']);
         $manager->persist($admin);
 
 //        ----------------------------------------------------------------------
         //user with ROLE_PRESTATAIRE
-        $userPresta1 = $this->createUserPresta1();
+        $userPresta1 = $this->createUser("presta1", "presta2",['ROLE_PRESTATAIRE']);
         $manager->persist($userPresta1);
-
         //create prestataire for user presta1 (normally it's with admin confirmation)
-        $presta = new Prestataire();
-        $presta->setName("RentProCar");
-        $presta->setDescription("Rent a car for your professional needs with us !");
-        $presta->setContactInfos("rent-pro-car@contact.com");
-        $presta->setSector("Vehicule renting");
-        $presta->setKbis("123 456 789 01234");
-        $presta->setAddress("35 Grande allée du 12 Février 1934 77186 Noisiel");
-        $presta->setStatus("Waiting for approval");
+        $presta = $this->createPrestataire("RentProCar", "Waiting for approuval" , "Renting cars");
         $presta->setOwner($userPresta1);
         $manager->persist($presta);
-
         //create Establishments
-        $establishment = new Establishment();
-        $establishment->setName("RentProCar Paris");
-        $establishment->setAddress("34 rue de paradis 75010 Paris");
-        $establishment->setDescription("Rent a car for your professional needs with us in Paris !");
+        $establishment = $this->createEtablissement("RentProCar");
         $establishment->setRelateTo($presta);
-        $establishment->setImage("image-url");
+
+        $prestation1 = $this->createPrestation("Rent Express");
+        $category1 = $this->createCategoriy("Professional renting");
+        $manager->persist($category1);
+        $prestation1->setCategory($category1);
+        $manager->persist($prestation1);
+        $establishment->addPrestation($prestation1);
         $manager->persist($establishment);
 
-        $establishment2 = new Establishment();
-        $establishment2->setName("RentProCar Lyon");
-        $establishment2->setAddress("38 rue de la paix 69000 Lyon");
-        $establishment2->setDescription("Rent a car for your professional needs with us in Lyon !");
+        $establishment2 = $this->createEtablissement("RentProCar");
         $establishment2->setRelateTo($presta);
-        $establishment2->setImage("image-url");
+        $establishment2->addPrestation($prestation1);
         $manager->persist($establishment2);
 
-        $establishment3 = new Establishment();
-        $establishment3->setName("RentProCar Nany");
-        $establishment3->setAddress("43 rue de Saurupt 54000 Nancy");
-        $establishment3->setDescription("Rent a car for your professional needs with us in Nancy !");
+
+        $establishment3 = $this->createEtablissement("RentProCar");
         $establishment3->setRelateTo($presta);
-        $establishment3->setImage("image-url");
+        $establishment3->addPrestation($prestation1);
         $manager->persist($establishment3);
 
-        //        ----------------------------------------------------------------------
+        //----------------------------------------------------------------------
 
         //user with ROLE_PRESTATAIRE
-        $userPresta2 = new User();
-        $userPresta2->setPassword($this->passwordHasher->hashPassword($userPresta2, "123456"));
-        $userPresta2->setFirstname("presta2");
-        $userPresta2->setLastname("presta2");
-        $userPresta2->setEmail("presta2@presta2.com");
-        $userPresta2->setRoles(['ROLE_PRESTATAIRE']);
+        $userPresta2 = $this->createUser("presta2", "presta2", ['ROLE_PRESTATAIRE']);
         $manager->persist($userPresta2);
 
         //create prestataire for user presta1 (normally it's with admin confirmation)
-        $presta2 = new Prestataire();
-        $presta2->setName("CleanPro");
-        $presta2->setDescription("Clean services for personnal or prefessional needs");
-        $presta2->setContactInfos("clean-pro@contact.com");
-        $presta2->setSector("Cleaning services");
-        $presta2->setKbis("156 775 789 01234");
-        $presta2->setAddress("26 rue de Grangclement 69100 Villeurbanne");
-        $presta2->setStatus("Approved");
+        $presta2 = $this->createPrestataire("CleanPro", "Approuved" , "Cleaning services");
         $presta2->setOwner($userPresta2);
         $manager->persist($presta2);
 
-        //create Establishments
-        $establishment4 = new Establishment();
-        $establishment4->setName("CleanPro Paris");
-        $establishment4->setAddress("34 rue de paradis 75010 Paris");
-        $establishment4->setDescription("Clean services for personnal or prefessional needs in Paris !");
+        /**/
+        $establishment4 = $this->createEtablissement("CleanPro");
         $establishment4->setRelateTo($presta2);
-        $establishment4->setImage("image-url");
+
+        $prestation2 = $this->createPrestation("Express Cleaning");
+        $category2 = $this->createCategoriy("Professional cleaning");
+        $manager->persist($category2);
+        $prestation2->setCategory($category2);
+        $manager->persist($prestation2);
+        $establishment->addPrestation($prestation1);
         $manager->persist($establishment4);
 
-        $establishment5 = new Establishment();
-        $establishment5->setName("CleanPro Lyon");
-        $establishment5->setAddress("38 rue de la paix 69000 Lyon");
-        $establishment5->setDescription("Clean services for personnal or prefessional needs in Lyon !");
+        $establishment5 = $this->createEtablissement("CleanPro");
         $establishment5->setRelateTo($presta2);
-        $establishment5->setImage("image-url");
+        $establishment5->addPrestation($prestation2);
         $manager->persist($establishment5);
 
-//        -------------------------------------------------------------------------------------------
+
+        $establishment6 = $this->createEtablissement("CleanPro");
+        $establishment6->setRelateTo($presta2);
+        $establishment6->addPrestation($prestation2);
+        $manager->persist($establishment6);
+        /**/
+
+        //-------------------------------------------------------------------------------------------
 
         // Création d'un autre prestataire
-        $presta3 = new Prestataire();
-        $presta3->setName("CityBikeRentals");
-        $presta3->setDescription("Explore the city on two wheels with our bike rental service!");
-        $presta3->setContactInfos("info@citybikerentals.com");
-        $presta3->setSector("Bicycle renting");
-        $presta3->setKbis("987 654 321 09876");
-        $presta3->setAddress("22 Rue de Rivoli, 75004 Paris");
-        $presta3->setStatus("Approved");
-        $presta3->setOwner($userPresta2); // Ajouter au $userPresta2
+
+        $presta3 = $this->createPrestataire("CityBikeRentals", "Approuved" , "Bicycle renting");
+        $presta3->setOwner($userPresta2);
         $manager->persist($presta3);
 
-// Création des établissements pour le deuxième prestataire
-        $establishment6 = new Establishment();
-        $establishment6->setName("CityBikeRentals Marseille");
-        $establishment6->setAddress("15 Quai de Rive Neuve, 13007 Marseille");
-        $establishment6->setDescription("Discover Marseille with our convenient bike rentals!");
-        $establishment6->setRelateTo($presta3);
-        $establishment6->setImage("image-url-marseille");
-        $manager->persist($establishment6);
-
-        $establishment7 = new Establishment();
-        $establishment7->setName("CityBikeRentals Bordeaux");
-        $establishment7->setAddress("18 Cours du Chapeau-Rouge, 33000 Bordeaux");
-        $establishment7->setDescription("Enjoy Bordeaux at your own pace with our bikes!");
+        $establishment7 = $this->createEtablissement("CityBikeRentals");
         $establishment7->setRelateTo($presta3);
-        $establishment7->setImage("image-url-bordeaux");
+
+        $prestation3 = $this->createPrestation("Bike ride in the city");
+        $category3 = $this->createCategoriy("City bike Renting");
+        $manager->persist($category3);
+        $prestation3->setCategory($category3);
+        $manager->persist($prestation3);
+        $establishment7->addPrestation($prestation3);
         $manager->persist($establishment7);
 
-        $establishment8 = new Establishment();
-        $establishment8->setName("CityBikeRentals Lyon");
-        $establishment8->setAddress("10 Rue de la Charité, 69002 Lyon");
-        $establishment8->setDescription("Best way to explore Lyon - rent a bike from us!");
+        $establishment8 = $this->createEtablissement("CityBikeRentals");
         $establishment8->setRelateTo($presta3);
-        $establishment8->setImage("image-url-lyon");
+        $establishment8->addPrestation($prestation3);
         $manager->persist($establishment8);
 
+        $establishment9 = $this->createEtablissement("CityBikeRentals");
+        $establishment9->setRelateTo($presta3);
+        $establishment9->addPrestation($prestation3);
+        $manager->persist($establishment9);
+
+        $prestation4 = $this->createPrestation("1 hour bike ride");
+        $prestation4->setCategory($category3);
+        $manager->persist($prestation4);
+        $establishment10 = $this->createEtablissement("CityBikeRentals");
+        $establishment10->setRelateTo($presta3);
+        $establishment10->addPrestation($prestation4);
+        $manager->persist($establishment10);
 
 
 
@@ -152,40 +159,72 @@ class DataFixtures extends Fixture
 
     }
 
-    private function createAdmin() : User
-    {
-        $admin = new User();
-        $admin->setPassword($this->passwordHasher->hashPassword($admin, "123456"));
-        $admin->setFirstname("admin");
-        $admin->setLastname("admin");
-        $admin->setEmail("admin@admin.com");
-        $admin->setRoles(['ROLE_ADMIN']);
 
-        return $admin;
+    private function createUser(string $firstname, string $lastname, $roles ) : User
+    {
+        $user = new User();
+        $user->setPassword($this->passwordHasher->hashPassword($user, "123456"));
+        $user->setFirstname($firstname);
+        $user->setLastname($lastname);
+        $user->setEmail("$firstname@$lastname.com");
+        $user->setRoles($roles);
+        return $user;
     }
 
-    private function createUserPresta1() : User
-    {
-        $userPresta1 = new User();
-        $userPresta1->setPassword($this->passwordHasher->hashPassword($userPresta1, "123456"));
-        $userPresta1->setFirstname("presta1");
-        $userPresta1->setLastname("presta1");
-        $userPresta1->setEmail("presta1@presta1.com");
-        $userPresta1->setRoles(['ROLE_PRESTATAIRE']);
 
-        return $userPresta1;
-    }
-
-    private function createPrestaForUser1()
+    private function createPrestataire($name, $status,$sector) : Prestataire
     {
         $presta = new Prestataire();
-        $presta->setName("RentProCar");
-        $presta->setDescription("Rent a car for your professional needs with us !");
-        $presta->setContactInfos("rent-pro-car@contact.com");
-        $presta->setSector("Vehicule renting");
+        $presta->setName($name);
+        $presta->setDescription($this->faker->text(50));
+        $presta->setContactInfos("$name@contact.com");
+        $presta->setSector($sector);
         $presta->setKbis("123 456 789 01234");
-        $presta->setAddress("35 Grande allée du 12 Février 1934 77186 Noisiel");
-        $presta->setStatus("Approved");
+        $presta->setAddress($this->faker->address());
+        $presta->setStatus($status);
 
+        $imageUrl = $this->faker->imageUrl(640,480,"dog",true);
+        $presta->setImage($imageUrl);
+
+        return $presta;
+    }
+
+
+    private function createPrestation($name) : Prestation
+    {
+        $prestation = new Prestation();
+        $prestation->setName($name);
+        $prestation->setDescription($this->faker->text(50));
+        $prestation->setPrice($this->faker->numberBetween(10,100));
+        $prestation->setDuration(24);
+
+        return $prestation;
+    }
+
+
+    private function createEtablissement($name) : Establishment{
+
+        $streetAdress = $this->faker->streetAddress();
+        $postCode = $this->faker->postcode();
+        $city = $this->faker->city();
+
+        $fullAdress = $streetAdress .', ' . $postCode . ' '. $city;
+
+        $establishment = new Establishment();
+        $establishment->setName("$name $city");
+        $establishment->setAddress($fullAdress);
+        $establishment->setDescription($this->faker->text(50) . "in $city !");
+//        $establishment->setRelateTo($presta);
+        $establishment->setImage($this->faker->imageUrl());
+
+        return $establishment;
+    }
+
+    private function createCategoriy($categoryName) : Category {
+
+        $category = new Category();
+        $category->setDescription("Description of the category");
+        $category->setName($categoryName);
+        return $category;
     }
 }
