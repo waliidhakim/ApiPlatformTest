@@ -37,10 +37,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider : GetEstablishmentStateProvider::class ,
             validationContext: ['groups' => ['Default', 'establishment:read']],
             
-            normalizationContext :  ['groups' => ['establishment:read'],['prestation:read']]
+            normalizationContext :  ['groups' => ['establishment:read'],['prestation:read'],['user:read']]
         ),
         new Patch (
-
+//            verifier la codition
+            security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_PRESTATAIRE') and object.getRelateTo().getOwner() == user) ",
+            securityMessage : "You don't have permission to perform this action",
+            denormalizationContext : ['groups' => ['establishment:update']],
+            validationContext: ['groups' => ['Default', 'establishment:update']],
         ),
         new Post(
             security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE') ",
@@ -74,6 +78,9 @@ class Establishment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups([
+        'establishment:read'
+    ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -81,15 +88,17 @@ class Establishment
             'establishment:read',
             'establishment:create',
             'prestataire:establishments:read',
-            'prestation:read'
+            'prestation:read',
+            'establishment:update'
     ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['
-        establishment:read',
+    #[Groups([
+        'establishment:read',
         'establishment:create',
+        'establishment:update',
         'prestataire:establishments:read',
         'prestation:read'
     ])]
@@ -97,7 +106,12 @@ class Establishment
     private ?string $address = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['establishment:read','establishment:create','prestataire:establishments:read'])]
+    #[Groups([
+        'establishment:read',
+        'establishment:create',
+        'establishment:update',
+        'prestataire:establishments:read']
+    )]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $description = null;
 
@@ -113,7 +127,7 @@ class Establishment
     private Collection $prestations;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['establishment:read','establishment:create','prestataire:establishments:read'])]
+    #[Groups(['establishment:read','establishment:create','establishment:update','prestataire:establishments:read'])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $image = null;
 

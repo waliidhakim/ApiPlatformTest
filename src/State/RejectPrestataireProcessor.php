@@ -45,7 +45,7 @@ class RejectPrestataireProcessor implements ProcessorInterface
 
         $prestataire->setStatus('Rejected');
 //        $owner->setRoles(['ROLE_PRESTATAIRE']);
-        $owner->removePrestataire($prestataire);
+        //$owner->removePrestataire($prestataire);
 
         $email = (new TemplatedEmail())
             ->from($prestataire->getContactInfos())

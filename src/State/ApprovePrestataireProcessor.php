@@ -43,7 +43,7 @@ class ApprovePrestataireProcessor implements ProcessorInterface
             throw new NotFoundHttpException('No owner found to the prestataire ');
         }
 
-        $prestataire->setStatus('Approved');
+        $prestataire->setStatus('approved');
         $owner->setRoles(['ROLE_PRESTATAIRE']);
 
         $email = (new TemplatedEmail())

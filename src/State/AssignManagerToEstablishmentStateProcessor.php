@@ -46,9 +46,10 @@ class AssignManagerToEstablishmentStateProcessor implements ProcessorInterface
             throw new NotFoundHttpException('User does not exist');
         }
 
-        if( ! in_array('ROLE_EMPLOYE' ,$userToBeManager->getRoles()) )
+
+        if( ! in_array('ROLE_MANAGER' ,$userToBeManager->getRoles()) )
         {
-            throw new NotFoundHttpException('User not an employe');
+            throw new NotFoundHttpException('User not a manager');
         }
 
         $userToBeManager->setRoles(['ROLE_MANAGER']);

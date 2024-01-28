@@ -62,9 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(
            security: "is_granted('ROLE_ADMIN') or ( is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user)",
            securityMessage : "You don't have permission to perform this action",
-
            validationContext: ['groups' => ['Default', 'prestataire:update']],
-           //name: 'registration
            denormalizationContext :  ['groups' => ['prestataire:update']]
        ),
 
@@ -114,7 +112,7 @@ class Prestataire
     private ?string $address = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestataire:create','prestataire:read','prestataire:update'])]
+    #[Groups(['prestataire:create','prestataire:read','prestataire:collection:read','prestataire:update'])]
     #[Assert\NotBlank(groups: ['prestataire:create'])]
     private ?string $description = null;
 
@@ -124,7 +122,7 @@ class Prestataire
     private ?string $contactInfos = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestataire:create', 'prestataire:collection:read','prestataire:read'])]
+    #[Groups(['prestataire:create', 'prestataire:collection:read','prestataire:read','prestataire:update'])]
     #[Assert\NotBlank(groups: ['prestataire:create'])]
     private ?string $sector = null;
 
@@ -133,11 +131,11 @@ class Prestataire
     private Collection $establishments;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestataire:create','prestataire:collection:read','prestataire:read'])]
+    #[Groups(['prestataire:create','prestataire:collection:read','prestataire:read','prestataire:update'])]
     #[Assert\NotBlank(groups: ['prestataire:create'])]
     private ?string $kbis = null;
 
-    #[Groups(['prestataire:collection:read'])]
+    #[Groups(['prestataire:collection:read','prestataire:update'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $status = null;
 
@@ -146,7 +144,7 @@ class Prestataire
     private ?User $owner = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestataire:create','prestataire:collection:read','prestataire:read','prestataire:update'])]
+    #[Groups(['prestataire:create','prestataire:collection:read','prestataire:read'])]
     private ?string $image = null;
 
     public function __construct()

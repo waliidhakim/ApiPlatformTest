@@ -121,7 +121,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:read','user:create', 'user:update','establishment:read'])]
+    #[Groups(['user:read','user:create', 'user:update','establishment:read','prestataire:collection:read'])]
     #[Assert\NotBlank(groups: ['user:create','prestataire:collection:read'])]
     private ?string $firstname = null;
 

@@ -46,21 +46,28 @@ class DataFixtures extends Fixture
             $manager->persist($user);
         }
 
+
+
         //user admin
         $admin = $this->createUser("admin", "admin",['ROLE_ADMIN']);
         $manager->persist($admin);
 
 //        ----------------------------------------------------------------------
         //user with ROLE_PRESTATAIRE
-        $userPresta1 = $this->createUser("presta1", "presta2",['ROLE_PRESTATAIRE']);
+        $userPresta1 = $this->createUser("presta1", "presta1",['ROLE_PRESTATAIRE']);
         $manager->persist($userPresta1);
         //create prestataire for user presta1 (normally it's with admin confirmation)
-        $presta = $this->createPrestataire("RentProCar", "Waiting for approuval" , "Renting cars");
+        $presta = $this->createPrestataire("RentProCar", "waiting for approval" , "Renting cars");
         $presta->setOwner($userPresta1);
         $manager->persist($presta);
         //create Establishments
         $establishment = $this->createEtablissement("RentProCar");
         $establishment->setRelateTo($presta);
+        //create manger
+        $userManager1 = $this->createUser("manager1", "manager1",['ROLE_MANAGER']);
+        $manager->persist($userManager1);
+        $establishment->setManager($userManager1);
+
 
         $prestation1 = $this->createPrestation("Rent Express");
         $category1 = $this->createCategoriy("Professional renting");
@@ -68,17 +75,25 @@ class DataFixtures extends Fixture
         $prestation1->setCategory($category1);
         $manager->persist($prestation1);
         $establishment->addPrestation($prestation1);
+
         $manager->persist($establishment);
 
         $establishment2 = $this->createEtablissement("RentProCar");
         $establishment2->setRelateTo($presta);
         $establishment2->addPrestation($prestation1);
+
+        $userManager2 = $this->createUser("manager2", "manager2",['ROLE_MANAGER']);
+        $manager->persist($userManager2);
+        $establishment2->setManager($userManager2);
         $manager->persist($establishment2);
 
 
         $establishment3 = $this->createEtablissement("RentProCar");
         $establishment3->setRelateTo($presta);
         $establishment3->addPrestation($prestation1);
+        $userManager3 = $this->createUser("manager3", "manager3",['ROLE_MANAGER']);
+        $manager->persist($userManager3);
+        $establishment3->setManager($userManager3);
         $manager->persist($establishment3);
 
         //----------------------------------------------------------------------
@@ -88,7 +103,7 @@ class DataFixtures extends Fixture
         $manager->persist($userPresta2);
 
         //create prestataire for user presta1 (normally it's with admin confirmation)
-        $presta2 = $this->createPrestataire("CleanPro", "Approuved" , "Cleaning services");
+        $presta2 = $this->createPrestataire("CleanPro", "approved" , "Cleaning services");
         $presta2->setOwner($userPresta2);
         $manager->persist($presta2);
 
@@ -96,23 +111,35 @@ class DataFixtures extends Fixture
         $establishment4 = $this->createEtablissement("CleanPro");
         $establishment4->setRelateTo($presta2);
 
+        $userManager4 = $this->createUser("manager4", "manager4",['ROLE_MANAGER']);
+        $manager->persist($userManager4);
+        $establishment4->setManager($userManager4);
+
         $prestation2 = $this->createPrestation("Express Cleaning");
         $category2 = $this->createCategoriy("Professional cleaning");
         $manager->persist($category2);
         $prestation2->setCategory($category2);
         $manager->persist($prestation2);
-        $establishment->addPrestation($prestation1);
+        $establishment4->addPrestation($prestation1);
         $manager->persist($establishment4);
 
         $establishment5 = $this->createEtablissement("CleanPro");
         $establishment5->setRelateTo($presta2);
         $establishment5->addPrestation($prestation2);
+
+        $userManager5 = $this->createUser("manager5", "manager5",['ROLE_MANAGER']);
+        $manager->persist($userManager5);
+        $establishment5->setManager($userManager5);
         $manager->persist($establishment5);
 
 
         $establishment6 = $this->createEtablissement("CleanPro");
         $establishment6->setRelateTo($presta2);
         $establishment6->addPrestation($prestation2);
+
+        $userManager6 = $this->createUser("manager6", "manager6",['ROLE_MANAGER']);
+        $manager->persist($userManager6);
+        $establishment6->setManager($userManager6);
         $manager->persist($establishment6);
         /**/
 
@@ -120,12 +147,16 @@ class DataFixtures extends Fixture
 
         // Création d'un autre prestataire
 
-        $presta3 = $this->createPrestataire("CityBikeRentals", "Approuved" , "Bicycle renting");
+        $presta3 = $this->createPrestataire("CityBikeRentals", "approved" , "Bicycle renting");
         $presta3->setOwner($userPresta2);
         $manager->persist($presta3);
 
         $establishment7 = $this->createEtablissement("CityBikeRentals");
         $establishment7->setRelateTo($presta3);
+
+        $userManager7 = $this->createUser("manager7", "manager7",['ROLE_MANAGER']);
+        $manager->persist($userManager7);
+        $establishment7->setManager($userManager7);
 
         $prestation3 = $this->createPrestation("Bike ride in the city");
         $category3 = $this->createCategoriy("City bike Renting");
@@ -138,11 +169,21 @@ class DataFixtures extends Fixture
         $establishment8 = $this->createEtablissement("CityBikeRentals");
         $establishment8->setRelateTo($presta3);
         $establishment8->addPrestation($prestation3);
+
+        $userManager8 = $this->createUser("manager8", "manager8",['ROLE_MANAGER']);
+        $manager->persist($userManager8);
+        $establishment8->setManager($userManager8);
+
         $manager->persist($establishment8);
 
         $establishment9 = $this->createEtablissement("CityBikeRentals");
         $establishment9->setRelateTo($presta3);
         $establishment9->addPrestation($prestation3);
+
+        $userManager9 = $this->createUser("manager9", "manager9",['ROLE_MANAGER']);
+        $manager->persist($userManager9);
+        $establishment9->setManager($userManager9);
+
         $manager->persist($establishment9);
 
         $prestation4 = $this->createPrestation("1 hour bike ride");
@@ -151,6 +192,10 @@ class DataFixtures extends Fixture
         $establishment10 = $this->createEtablissement("CityBikeRentals");
         $establishment10->setRelateTo($presta3);
         $establishment10->addPrestation($prestation4);
+
+        $userManager10 = $this->createUser("manager10", "manager10",['ROLE_MANAGER']);
+        $manager->persist($userManager10);
+        $establishment10->setManager($userManager10);
         $manager->persist($establishment10);
 
 
