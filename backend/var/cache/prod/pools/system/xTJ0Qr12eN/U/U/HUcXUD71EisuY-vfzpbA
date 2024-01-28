@@ -1,0 +1,118 @@
+<?php //App.Entity.User
+
+return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\Internal\Hydrator::hydrate(
+    $o = [
+        (($f = &\Symfony\Component\VarExporter\Internal\Registry::$factories)['Symfony\\Component\\Validator\\Mapping\\ClassMetadata'] ?? \Symfony\Component\VarExporter\Internal\Registry::f('Symfony\\Component\\Validator\\Mapping\\ClassMetadata'))(),
+        ($f['Symfony\\Component\\Validator\\Mapping\\PropertyMetadata'] ?? \Symfony\Component\VarExporter\Internal\Registry::f('Symfony\\Component\\Validator\\Mapping\\PropertyMetadata'))(),
+        clone (($p = &\Symfony\Component\VarExporter\Internal\Registry::$prototypes)['Symfony\\Component\\Validator\\Constraints\\NotBlank'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('Symfony\\Component\\Validator\\Constraints\\NotBlank')),
+        $f['Symfony\\Component\\Validator\\Mapping\\PropertyMetadata'](),
+        clone $p['Symfony\\Component\\Validator\\Constraints\\NotBlank'],
+        $f['Symfony\\Component\\Validator\\Mapping\\PropertyMetadata'](),
+        clone $p['Symfony\\Component\\Validator\\Constraints\\NotBlank'],
+        $f['Symfony\\Component\\Validator\\Mapping\\PropertyMetadata'](),
+        clone $p['Symfony\\Component\\Validator\\Constraints\\NotBlank'],
+    ],
+    null,
+    [
+        'stdClass' => [
+            'name' => [
+                'App\\Entity\\User',
+                'email',
+                3 => 'firstname',
+                5 => 'lastname',
+                7 => 'plainPassword',
+            ],
+            'defaultGroup' => [
+                'User',
+            ],
+            'members' => [
+                [
+                    'email' => [
+                        $o[1],
+                    ],
+                    'firstname' => [
+                        $o[3],
+                    ],
+                    'lastname' => [
+                        $o[5],
+                    ],
+                    'plainPassword' => [
+                        $o[7],
+                    ],
+                ],
+            ],
+            'properties' => [
+                [
+                    'email' => $o[1],
+                    'firstname' => $o[3],
+                    'lastname' => $o[5],
+                    'plainPassword' => $o[7],
+                ],
+            ],
+            'constraints' => [
+                1 => [
+                    $o[2],
+                ],
+                3 => [
+                    $o[4],
+                ],
+                5 => [
+                    $o[6],
+                ],
+                7 => [
+                    $o[8],
+                ],
+            ],
+            'constraintsByGroup' => [
+                1 => [
+                    'user:create' => [
+                        $o[2],
+                    ],
+                ],
+                3 => [
+                    'user:create' => [
+                        $o[4],
+                    ],
+                ],
+                5 => [
+                    'user:create' => [
+                        $o[6],
+                    ],
+                ],
+                7 => [
+                    'user:create' => [
+                        $o[8],
+                    ],
+                ],
+            ],
+            'class' => [
+                1 => 'App\\Entity\\User',
+                3 => 'App\\Entity\\User',
+                5 => 'App\\Entity\\User',
+                7 => 'App\\Entity\\User',
+            ],
+            'property' => [
+                1 => 'email',
+                3 => 'firstname',
+                5 => 'lastname',
+                7 => 'plainPassword',
+            ],
+            'groups' => [
+                2 => [
+                    'user:create',
+                ],
+                4 => [
+                    'user:create',
+                ],
+                6 => [
+                    'user:create',
+                ],
+                8 => [
+                    'user:create',
+                ],
+            ],
+        ],
+    ],
+    $o[0],
+    []
+); }];
