@@ -146,3 +146,15 @@ yarn-error.log
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
+
+
+
+
+#file uploads
+/public/uploads
+
+
+
+.env.dev
+.env.prod
+.env

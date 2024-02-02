@@ -29,15 +29,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "is_granted('ROLE_ADMIN')",
 //           security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user",
             securityMessage : "You don't have permission to access this page",
-            normalizationContext :  ['groups' => ['establishment:read','prestation:read']]
+            normalizationContext :  ['groups' => ['establishment:read'],['prestation:read'], ['prestataire:read']]
         ),
         new GetCollection(
             security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_PRESTATAIRE') )",
             securityMessage : "You don't have permission to perform this action",
             provider : GetEstablishmentStateProvider::class ,
             validationContext: ['groups' => ['Default', 'establishment:read']],
-            
-            normalizationContext :  ['groups' => ['establishment:read'],['prestation:read'],['user:read']]
+            normalizationContext :  ['groups' => ['establishment:read'],['prestation:read'],['user:read'], ['prestataire:read']]
         ),
         new Patch (
 //            verifier la codition
@@ -89,7 +88,8 @@ class Establishment
             'establishment:create',
             'prestataire:establishments:read',
             'prestation:read',
-            'establishment:update'
+            'establishment:update',
+            'prestataire:read'
     ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $name = null;
@@ -100,7 +100,8 @@ class Establishment
         'establishment:create',
         'establishment:update',
         'prestataire:establishments:read',
-        'prestation:read'
+        'prestation:read',
+        'prestataire:read'
     ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $address = null;
@@ -127,12 +128,18 @@ class Establishment
     private Collection $prestations;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['establishment:read','establishment:create','establishment:update','prestataire:establishments:read'])]
+    #[Groups([
+        'establishment:read',
+        'establishment:create',
+        'establishment:update',
+        'prestataire:establishments:read',
+        'prestataire:read'
+    ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $image = null;
 
     #[ORM\ManyToOne(inversedBy: 'managedEstablishments')]
-    #[Groups(['establishment:read'])]
+    #[Groups(['establishment:read', 'prestataire:read'])]
     private ?User $manager = null;
 
     public function __construct()

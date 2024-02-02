@@ -920,6 +920,12 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     'json' => [
                         'application/json',
                     ],
+                    'html' => [
+                        'text/html',
+                    ],
+                    'multipart' => [
+                        'multipart/form-data',
+                    ],
                 ],
                 4 => [
                     'jsonld' => [
@@ -928,13 +934,11 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     'json' => [
                         'application/json',
                     ],
-                ],
-                [
-                    'jsonld' => [
-                        'application/ld+json',
+                    'html' => [
+                        'text/html',
                     ],
-                    'json' => [
-                        'application/json',
+                    'multipart' => [
+                        'multipart/form-data',
                     ],
                 ],
                 [
@@ -943,6 +947,26 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     ],
                     'json' => [
                         'application/json',
+                    ],
+                    'html' => [
+                        'text/html',
+                    ],
+                    'multipart' => [
+                        'multipart/form-data',
+                    ],
+                ],
+                [
+                    'jsonld' => [
+                        'application/ld+json',
+                    ],
+                    'json' => [
+                        'application/json',
+                    ],
+                    'html' => [
+                        'text/html',
+                    ],
+                    'multipart' => [
+                        'multipart/form-data',
                     ],
                 ],
                 8 => [
@@ -957,6 +981,12 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     'json' => [
                         'application/json',
                     ],
+                    'html' => [
+                        'text/html',
+                    ],
+                    'multipart' => [
+                        'multipart/form-data',
+                    ],
                 ],
             ],
             'outputFormats' => [
@@ -967,6 +997,12 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     'json' => [
                         'application/json',
                     ],
+                    'html' => [
+                        'text/html',
+                    ],
+                    'multipart' => [
+                        'multipart/form-data',
+                    ],
                 ],
                 4 => [
                     'jsonld' => [
@@ -975,13 +1011,11 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     'json' => [
                         'application/json',
                     ],
-                ],
-                [
-                    'jsonld' => [
-                        'application/ld+json',
+                    'html' => [
+                        'text/html',
                     ],
-                    'json' => [
-                        'application/json',
+                    'multipart' => [
+                        'multipart/form-data',
                     ],
                 ],
                 [
@@ -990,6 +1024,26 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     ],
                     'json' => [
                         'application/json',
+                    ],
+                    'html' => [
+                        'text/html',
+                    ],
+                    'multipart' => [
+                        'multipart/form-data',
+                    ],
+                ],
+                [
+                    'jsonld' => [
+                        'application/ld+json',
+                    ],
+                    'json' => [
+                        'application/json',
+                    ],
+                    'html' => [
+                        'text/html',
+                    ],
+                    'multipart' => [
+                        'multipart/form-data',
                     ],
                 ],
                 8 => [
@@ -999,6 +1053,12 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     'json' => [
                         'application/json',
                     ],
+                    'html' => [
+                        'text/html',
+                    ],
+                    'multipart' => [
+                        'multipart/form-data',
+                    ],
                 ],
                 10 => [
                     'jsonld' => [
@@ -1006,6 +1066,12 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     ],
                     'json' => [
                         'application/json',
+                    ],
+                    'html' => [
+                        'text/html',
+                    ],
+                    'multipart' => [
+                        'multipart/form-data',
                     ],
                 ],
             ],

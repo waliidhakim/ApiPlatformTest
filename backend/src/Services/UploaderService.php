@@ -31,7 +31,8 @@ class UploaderService
         $safeFilename = $this->slugger->slug($originalFilename);
         $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
-        if ($this->env === 'prod') {
+        //enregistrer toujours dans le bucket s3
+        if (1) {
 //        if (1) {
             // S3 upload for production
 
@@ -54,21 +55,23 @@ class UploaderService
 
                 throw $e;  // Re-throw the exception to see it clearly
             }
-        } else {
-            // Local storage for dev
-            try {
-                // dd($this->uploadsDirectory . "/" . $directoryFolder);
-
-                $file->move(
-                    $this->uploadsDirectory . "/" .  $directoryFolder,
-                    $newFilename
-                );
-            } catch (FileException $e) {
-                // handle local storage exceptions
-//                dd($e);
-                throw $e;
-            }
         }
+
+//        else {
+//            // Local storage for dev
+//            try {
+//                // dd($this->uploadsDirectory . "/" . $directoryFolder);
+//
+//                $file->move(
+//                    $this->uploadsDirectory . "/" .  $directoryFolder,
+//                    $newFilename
+//                );
+//            } catch (FileException $e) {
+//                // handle local storage exceptions
+////                dd($e);
+//                throw $e;
+//            }
+//        }
 
         return $newFilename;
     }

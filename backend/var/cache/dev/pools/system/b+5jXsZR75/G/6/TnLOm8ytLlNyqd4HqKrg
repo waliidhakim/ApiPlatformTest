@@ -15,6 +15,7 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     'App\\Entity\\Category',
                     'App\\Entity\\Establishment',
                     'App\\Entity\\Feedback',
+                    'App\\Entity\\Media',
                     'App\\Entity\\Prestataire',
                     'App\\Entity\\Prestation',
                     'App\\Entity\\Slot',

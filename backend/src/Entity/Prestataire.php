@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Controller\GetEstablishmentsByPrestataireController;
+use App\Controller\RegisterPrestataireController;
 use App\Dto\RegisterPrestataireDto;
 use App\Repository\PrestataireRepository;
 use App\State\ApprovePrestataireProcessor;
@@ -29,11 +30,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
 
 //            input: RegisterPrestataireDto::class,
-            security: "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE')",
             securityMessage : "You have to be logged in to perform this action",
-            processor: RegisterPrestataireProcessor::class,
+            controller: RegisterPrestataireController::class,
+//            processor: RegisterPrestataireProcessor::class,
+            deserialize: false,
             validationContext: ['groups' => ['Default', 'prestataire:create']],
-            //name: 'registration',
             uriTemplate: '/prestataire/register',
             denormalizationContext :  ['groups' => ['prestataire:create']]
         ),
@@ -49,6 +51,7 @@ use Symfony\Component\Validator\Constraints as Assert;
            provider: GetPrestatairesForUserStateProvider::class ,
            normalizationContext :  ['groups' => ['prestataire:collection:read']]
        ),
+
 
         new GetCollection(
             security: "( is_granted('ROLE_PRESTATAIRE'))",
@@ -107,27 +110,50 @@ class Prestataire
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestataire:create','prestataire:collection:read','prestataire:read','prestataire:update'])]
+    #[Groups([
+        'prestataire:create',
+        'prestataire:collection:read',
+        'prestataire:read',
+        'prestataire:update'
+    ])]
     #[Assert\NotBlank(groups: ['prestataire:create'])]
     private ?string $address = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestataire:create','prestataire:read','prestataire:collection:read','prestataire:update'])]
+    #[Groups([
+        'prestataire:create',
+        'prestataire:read',
+        'prestataire:collection:read',
+        'prestataire:update'
+    ])]
     #[Assert\NotBlank(groups: ['prestataire:create'])]
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestataire:create','prestataire:collection:read','prestataire:read','prestataire:update'])]
+    #[Groups([
+        'prestataire:create',
+        'prestataire:collection:read',
+        'prestataire:read',
+        'prestataire:update'
+    ])]
     #[Assert\NotBlank(groups: ['prestataire:create'])]
     private ?string $contactInfos = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestataire:create', 'prestataire:collection:read','prestataire:read','prestataire:update'])]
+    #[Groups([
+        'prestataire:create',
+        'prestataire:collection:read',
+        'prestataire:read',
+        'prestataire:update'
+    ])]
     #[Assert\NotBlank(groups: ['prestataire:create'])]
     private ?string $sector = null;
 
     #[ORM\OneToMany(mappedBy: 'relateTo', targetEntity: Establishment::class )]
-    #[Groups(['prestataire:establishments:read'])]
+    #[Groups([
+        'prestataire:establishments:read',
+        'prestataire:read'
+    ])]
     private Collection $establishments;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -146,6 +172,9 @@ class Prestataire
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['prestataire:create','prestataire:collection:read','prestataire:read'])]
     private ?string $image = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?Media $media = null;
 
     public function __construct()
     {
@@ -291,6 +320,18 @@ class Prestataire
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    public function getMedia(): ?Media
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?Media $media): static
+    {
+        $this->media = $media;
 
         return $this;
     }

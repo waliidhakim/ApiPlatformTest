@@ -55,3 +55,18 @@ services:
     App\Purger\CustomPurgerFactory:
         tags:
             - { name: 'doctrine.fixtures.purger_factory', alias: 'my_purger' }
+
+    App\EventListener\JWTCreatedListener:
+        arguments:
+            $requestStack: '@request_stack'
+        tags:
+            - { name: 'kernel.event_listener', event: 'lexik_jwt_authentication.on_jwt_created', method: 'onJWTCreated' }
+
+
+    'App\State\UserPatchProcessor':
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $fileUploader: '@App\Services\UploaderService'
+            $requestStack: '@request_stack'
+        tags:
+            - { name: 'api_platform.state_processor', resource_class: 'App\Entity\User', operation: 'patch' }

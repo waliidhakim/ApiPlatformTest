@@ -11,7 +11,7 @@ return [
         '/api/graphql' => [[['_route' => 'api_graphql_entrypoint', '_controller' => 'api_platform.graphql.action.entrypoint', '_graphql' => true, 'attributes' => ['readable' => false]], null, null, null, false, false, null]],
         '/api/graphql/graphiql' => [[['_route' => 'api_graphql_graphiql', '_controller' => 'api_platform.graphql.action.graphiql', '_graphql' => true, 'attributes' => ['readable' => false]], null, null, null, false, false, null]],
         '/api/graphql/graphql_playground' => [[['_route' => 'api_graphql_graphql_playground', '_controller' => 'api_platform.graphql.action.graphql_playground', '_graphql' => true, 'attributes' => ['readable' => false]], null, null, null, false, false, null]],
-        '/api/prestataire/register' => [[['_route' => '_api_/prestataire/register_post', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataire/register_post', 'attributes' => ['readable' => false]], null, ['POST' => 0], null, false, false, null]],
+        '/api/prestataire/register' => [[['_route' => '_api_/prestataire/register_post', '_controller' => 'App\\Controller\\RegisterPrestataireController', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataire/register_post', 'attributes' => ['readable' => false]], null, ['POST' => 0], null, false, false, null]],
         '/api/users/employees' => [[['_route' => '_api_/users/employees_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\User', '_api_operation_name' => '_api_/users/employees_get_collection', 'attributes' => ['readable' => false]], null, ['GET' => 0], null, false, false, null]],
         '/api/register' => [[['_route' => 'registration', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\User', '_api_operation_name' => 'registration', 'attributes' => ['readable' => false]], null, ['POST' => 0], null, false, false, null]],
         '/api/registerEmployee' => [[['_route' => '_api_/registerEmployee_post', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\User', '_api_operation_name' => '_api_/registerEmployee_post', 'attributes' => ['readable' => false]], null, ['POST' => 0], null, false, false, null]],
@@ -77,60 +77,68 @@ return [
                             .'|(?:\\.([^/]++))?(*:865)'
                             .'|/([^/\\.]++)(?:\\.([^/]++))?(*:899)'
                         .')'
+                        .'|media(?'
+                            .'|(?:\\.([^/]++))?(*:931)'
+                            .'|/([^/\\.]++)(?:\\.([^/]++))?(*:965)'
+                            .'|(?:\\.([^/]++))?(*:988)'
+                        .')'
                         .'|prestat(?'
                             .'|aire(?'
                                 .'|s(?'
-                                    .'|/([^/\\.]++)(?:\\.([^/]++))?(*:955)'
-                                    .'|(?:\\.([^/]++))?(*:978)'
+                                    .'|/([^/\\.]++)(?:\\.([^/]++))?(*:1044)'
+                                    .'|(?:\\.([^/]++))?(*:1068)'
                                     .'|/(?'
-                                        .'|([^/\\.]++)(?:\\.([^/]++))?(*:1015)'
+                                        .'|([^/\\.]++)(?:\\.([^/]++))?(*:1106)'
                                         .'|([^/]++)/(?'
-                                            .'|approve(*:1043)'
-                                            .'|reject(*:1058)'
+                                            .'|approve(*:1134)'
+                                            .'|reject(*:1149)'
                                         .')'
-                                        .'|([^/\\.]++)(?:\\.([^/]++))?(*:1093)'
+                                        .'|([^/\\.]++)(?:\\.([^/]++))?(*:1184)'
                                     .')'
                                 .')'
-                                .'|/([^/]++)/establishments(*:1128)'
+                                .'|/([^/]++)/establishments(*:1219)'
                             .')'
                             .'|ions(?'
-                                .'|/([^/\\.]++)(?:\\.([^/]++))?(*:1171)'
-                                .'|(?:\\.([^/]++))?(*:1195)'
-                                .'|/([^/\\.]++)(?:\\.([^/]++))?(*:1230)'
-                                .'|(?:\\.([^/]++))?(*:1254)'
-                                .'|/([^/\\.]++)(?:\\.([^/]++))?(*:1289)'
+                                .'|/([^/\\.]++)(?:\\.([^/]++))?(*:1262)'
+                                .'|(?:\\.([^/]++))?(*:1286)'
+                                .'|/public(*:1302)'
+                                .'|(?:\\.([^/]++))?(*:1326)'
+                                .'|/([^/\\.]++)(?:\\.([^/]++))?(*:1361)'
                             .')'
                         .')'
                         .'|slots(?'
-                            .'|/([^/\\.]++)(?:\\.([^/]++))?(*:1334)'
+                            .'|/([^/\\.]++)(?:\\.([^/]++))?(*:1406)'
                             .'|(?:\\.([^/]++))?(?'
-                                .'|(*:1361)'
+                                .'|(*:1433)'
                             .')'
-                            .'|/([^/\\.]++)(?:\\.([^/]++))?(?'
-                                .'|(*:1400)'
-                            .')'
-                        .')'
-                        .'|users(?'
-                            .'|(?:\\.([^/]++))?(*:1434)'
                             .'|/([^/\\.]++)(?:\\.([^/]++))?(?'
                                 .'|(*:1472)'
                             .')'
                         .')'
+                        .'|u(?'
+                            .'|sers(?'
+                                .'|(?:\\.([^/]++))?(*:1509)'
+                                .'|/([^/\\.]++)(?:\\.([^/]++))?(?'
+                                    .'|(*:1547)'
+                                .')'
+                            .')'
+                            .'|pdate_profil/([^/]++)(*:1579)'
+                        .')'
                     .')'
                 .')'
                 .'|/_(?'
-                    .'|error/(\\d+)(?:\\.([^/]++))?(*:1516)'
-                    .'|wdt/([^/]++)(*:1537)'
+                    .'|error/(\\d+)(?:\\.([^/]++))?(*:1622)'
+                    .'|wdt/([^/]++)(*:1643)'
                     .'|profiler/([^/]++)(?'
                         .'|/(?'
-                            .'|search/results(*:1584)'
-                            .'|router(*:1599)'
+                            .'|search/results(*:1690)'
+                            .'|router(*:1705)'
                             .'|exception(?'
-                                .'|(*:1620)'
-                                .'|\\.css(*:1634)'
+                                .'|(*:1726)'
+                                .'|\\.css(*:1740)'
                             .')'
                         .')'
-                        .'|(*:1645)'
+                        .'|(*:1751)'
                     .')'
                 .')'
             .')/?$}sDu',
@@ -171,41 +179,45 @@ return [
         842 => [[['_route' => '_api_/feedback/{id}{._format}_patch', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Feedback', '_api_operation_name' => '_api_/feedback/{id}{._format}_patch', 'attributes' => ['readable' => false]], ['id', '_format'], ['PATCH' => 0], null, false, true, null]],
         865 => [[['_route' => '_api_/feedback{._format}_post', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Feedback', '_api_operation_name' => '_api_/feedback{._format}_post', 'attributes' => ['readable' => false]], ['_format'], ['POST' => 0], null, false, true, null]],
         899 => [[['_route' => '_api_/feedback/{id}{._format}_delete', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Feedback', '_api_operation_name' => '_api_/feedback/{id}{._format}_delete', 'attributes' => ['readable' => false]], ['id', '_format'], ['DELETE' => 0], null, false, true, null]],
-        955 => [[['_route' => '_api_/prestataires/{id}{._format}_get', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}{._format}_get', 'attributes' => ['readable' => false]], ['id', '_format'], ['GET' => 0], null, false, true, null]],
-        978 => [[['_route' => '_api_/prestataires{._format}_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires{._format}_get_collection', 'attributes' => ['readable' => false]], ['_format'], ['GET' => 0], null, false, true, null]],
-        1015 => [[['_route' => '_api_/prestataires/{id}{._format}_patch', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}{._format}_patch', 'attributes' => ['readable' => false]], ['id', '_format'], ['PATCH' => 0], null, false, true, null]],
-        1043 => [[['_route' => '_api_/prestataires/{id}/approve_put', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}/approve_put', 'attributes' => ['readable' => false]], ['id'], ['PUT' => 0], null, false, false, null]],
-        1058 => [[['_route' => '_api_/prestataires/{id}/reject_put', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}/reject_put', 'attributes' => ['readable' => false]], ['id'], ['PUT' => 0], null, false, false, null]],
-        1093 => [[['_route' => '_api_/prestataires/{id}{._format}_delete', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}{._format}_delete', 'attributes' => ['readable' => false]], ['id', '_format'], ['DELETE' => 0], null, false, true, null]],
-        1128 => [[['_route' => '_api_/prestataire/{id}/establishments_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataire/{id}/establishments_get_collection', 'attributes' => ['readable' => false]], ['id'], ['GET' => 0], null, false, false, null]],
-        1171 => [[['_route' => '_api_/prestations/{id}{._format}_get', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations/{id}{._format}_get', 'attributes' => ['readable' => false]], ['id', '_format'], ['GET' => 0], null, false, true, null]],
-        1195 => [[['_route' => '_api_/prestations{._format}_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations{._format}_get_collection', 'attributes' => ['readable' => false]], ['_format'], ['GET' => 0], null, false, true, null]],
-        1230 => [[['_route' => '_api_/prestations/{id}{._format}_patch', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations/{id}{._format}_patch', 'attributes' => ['readable' => false]], ['id', '_format'], ['PATCH' => 0], null, false, true, null]],
-        1254 => [[['_route' => '_api_/prestations{._format}_post', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations{._format}_post', 'attributes' => ['readable' => false]], ['_format'], ['POST' => 0], null, false, true, null]],
-        1289 => [[['_route' => '_api_/prestations/{id}{._format}_delete', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations/{id}{._format}_delete', 'attributes' => ['readable' => false]], ['id', '_format'], ['DELETE' => 0], null, false, true, null]],
-        1334 => [[['_route' => '_api_/slots/{id}{._format}_get', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Slot', '_api_operation_name' => '_api_/slots/{id}{._format}_get', 'attributes' => ['readable' => false]], ['id', '_format'], ['GET' => 0], null, false, true, null]],
-        1361 => [
+        931 => [[['_route' => '_api_/media{._format}_post', '_controller' => 'App\\Controller\\MediaOploaderController', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Media', '_api_operation_name' => '_api_/media{._format}_post', 'attributes' => ['readable' => false]], ['_format'], ['POST' => 0], null, false, true, null]],
+        965 => [[['_route' => '_api_/media/{id}{._format}_get', '_controller' => 'api_platform.action.not_exposed', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Media', '_api_operation_name' => '_api_/media/{id}{._format}_get', 'attributes' => ['readable' => false]], ['id', '_format'], ['GET' => 0], null, false, true, null]],
+        988 => [[['_route' => '_api_/media{._format}_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Media', '_api_operation_name' => '_api_/media{._format}_get_collection', 'attributes' => ['readable' => false]], ['_format'], ['GET' => 0], null, false, true, null]],
+        1044 => [[['_route' => '_api_/prestataires/{id}{._format}_get', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}{._format}_get', 'attributes' => ['readable' => false]], ['id', '_format'], ['GET' => 0], null, false, true, null]],
+        1068 => [[['_route' => '_api_/prestataires{._format}_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires{._format}_get_collection', 'attributes' => ['readable' => false]], ['_format'], ['GET' => 0], null, false, true, null]],
+        1106 => [[['_route' => '_api_/prestataires/{id}{._format}_patch', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}{._format}_patch', 'attributes' => ['readable' => false]], ['id', '_format'], ['PATCH' => 0], null, false, true, null]],
+        1134 => [[['_route' => '_api_/prestataires/{id}/approve_put', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}/approve_put', 'attributes' => ['readable' => false]], ['id'], ['PUT' => 0], null, false, false, null]],
+        1149 => [[['_route' => '_api_/prestataires/{id}/reject_put', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}/reject_put', 'attributes' => ['readable' => false]], ['id'], ['PUT' => 0], null, false, false, null]],
+        1184 => [[['_route' => '_api_/prestataires/{id}{._format}_delete', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataires/{id}{._format}_delete', 'attributes' => ['readable' => false]], ['id', '_format'], ['DELETE' => 0], null, false, true, null]],
+        1219 => [[['_route' => '_api_/prestataire/{id}/establishments_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestataire', '_api_operation_name' => '_api_/prestataire/{id}/establishments_get_collection', 'attributes' => ['readable' => false]], ['id'], ['GET' => 0], null, false, false, null]],
+        1262 => [[['_route' => '_api_/prestations/{id}{._format}_get', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations/{id}{._format}_get', 'attributes' => ['readable' => false]], ['id', '_format'], ['GET' => 0], null, false, true, null]],
+        1286 => [[['_route' => '_api_/prestations{._format}_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations{._format}_get_collection', 'attributes' => ['readable' => false]], ['_format'], ['GET' => 0], null, false, true, null]],
+        1302 => [[['_route' => '_api_/prestations/public_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations/public_get_collection', 'attributes' => ['readable' => false]], [], ['GET' => 0], null, false, false, null]],
+        1326 => [[['_route' => '_api_/prestations{._format}_post', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations{._format}_post', 'attributes' => ['readable' => false]], ['_format'], ['POST' => 0], null, false, true, null]],
+        1361 => [[['_route' => '_api_/prestations/{id}{._format}_delete', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Prestation', '_api_operation_name' => '_api_/prestations/{id}{._format}_delete', 'attributes' => ['readable' => false]], ['id', '_format'], ['DELETE' => 0], null, false, true, null]],
+        1406 => [[['_route' => '_api_/slots/{id}{._format}_get', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Slot', '_api_operation_name' => '_api_/slots/{id}{._format}_get', 'attributes' => ['readable' => false]], ['id', '_format'], ['GET' => 0], null, false, true, null]],
+        1433 => [
             [['_route' => '_api_/slots{._format}_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Slot', '_api_operation_name' => '_api_/slots{._format}_get_collection', 'attributes' => ['readable' => false]], ['_format'], ['GET' => 0], null, false, true, null],
             [['_route' => '_api_/slots{._format}_post', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Slot', '_api_operation_name' => '_api_/slots{._format}_post', 'attributes' => ['readable' => false]], ['_format'], ['POST' => 0], null, false, true, null],
         ],
-        1400 => [
+        1472 => [
             [['_route' => '_api_/slots/{id}{._format}_put', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Slot', '_api_operation_name' => '_api_/slots/{id}{._format}_put', 'attributes' => ['readable' => false]], ['id', '_format'], ['PUT' => 0], null, false, true, null],
             [['_route' => '_api_/slots/{id}{._format}_patch', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Slot', '_api_operation_name' => '_api_/slots/{id}{._format}_patch', 'attributes' => ['readable' => false]], ['id', '_format'], ['PATCH' => 0], null, false, true, null],
             [['_route' => '_api_/slots/{id}{._format}_delete', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\Slot', '_api_operation_name' => '_api_/slots/{id}{._format}_delete', 'attributes' => ['readable' => false]], ['id', '_format'], ['DELETE' => 0], null, false, true, null],
         ],
-        1434 => [[['_route' => '_api_/users{._format}_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\User', '_api_operation_name' => '_api_/users{._format}_get_collection', 'attributes' => ['readable' => false]], ['_format'], ['GET' => 0], null, false, true, null]],
-        1472 => [
+        1509 => [[['_route' => '_api_/users{._format}_get_collection', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\User', '_api_operation_name' => '_api_/users{._format}_get_collection', 'attributes' => ['readable' => false]], ['_format'], ['GET' => 0], null, false, true, null]],
+        1547 => [
             [['_route' => '_api_/users/{id}{._format}_get', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\User', '_api_operation_name' => '_api_/users/{id}{._format}_get', 'attributes' => ['readable' => false]], ['id', '_format'], ['GET' => 0], null, false, true, null],
             [['_route' => '_api_/users/{id}{._format}_patch', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\User', '_api_operation_name' => '_api_/users/{id}{._format}_patch', 'attributes' => ['readable' => false]], ['id', '_format'], ['PATCH' => 0], null, false, true, null],
             [['_route' => '_api_/users/{id}{._format}_delete', '_controller' => 'api_platform.action.placeholder', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\User', '_api_operation_name' => '_api_/users/{id}{._format}_delete', 'attributes' => ['readable' => false]], ['id', '_format'], ['DELETE' => 0], null, false, true, null],
         ],
-        1516 => [[['_route' => '_preview_error', '_controller' => 'error_controller::preview', '_format' => 'html'], ['code', '_format'], null, null, false, true, null]],
-        1537 => [[['_route' => '_wdt', '_controller' => 'web_profiler.controller.profiler::toolbarAction'], ['token'], null, null, false, true, null]],
-        1584 => [[['_route' => '_profiler_search_results', '_controller' => 'web_profiler.controller.profiler::searchResultsAction'], ['token'], null, null, false, false, null]],
-        1599 => [[['_route' => '_profiler_router', '_controller' => 'web_profiler.controller.router::panelAction'], ['token'], null, null, false, false, null]],
-        1620 => [[['_route' => '_profiler_exception', '_controller' => 'web_profiler.controller.exception_panel::body'], ['token'], null, null, false, false, null]],
-        1634 => [[['_route' => '_profiler_exception_css', '_controller' => 'web_profiler.controller.exception_panel::stylesheet'], ['token'], null, null, false, false, null]],
-        1645 => [
+        1579 => [[['_route' => '_api_/update_profil/{id}_post', '_controller' => 'App\\Controller\\MediaOploaderController', '_format' => null, '_stateless' => true, '_api_resource_class' => 'App\\Entity\\User', '_api_operation_name' => '_api_/update_profil/{id}_post', 'attributes' => ['readable' => false]], ['id'], ['POST' => 0], null, false, true, null]],
+        1622 => [[['_route' => '_preview_error', '_controller' => 'error_controller::preview', '_format' => 'html'], ['code', '_format'], null, null, false, true, null]],
+        1643 => [[['_route' => '_wdt', '_controller' => 'web_profiler.controller.profiler::toolbarAction'], ['token'], null, null, false, true, null]],
+        1690 => [[['_route' => '_profiler_search_results', '_controller' => 'web_profiler.controller.profiler::searchResultsAction'], ['token'], null, null, false, false, null]],
+        1705 => [[['_route' => '_profiler_router', '_controller' => 'web_profiler.controller.router::panelAction'], ['token'], null, null, false, false, null]],
+        1726 => [[['_route' => '_profiler_exception', '_controller' => 'web_profiler.controller.exception_panel::body'], ['token'], null, null, false, false, null]],
+        1740 => [[['_route' => '_profiler_exception_css', '_controller' => 'web_profiler.controller.exception_panel::stylesheet'], ['token'], null, null, false, false, null]],
+        1751 => [
             [['_route' => '_profiler', '_controller' => 'web_profiler.controller.profiler::panelAction'], ['token'], null, null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],

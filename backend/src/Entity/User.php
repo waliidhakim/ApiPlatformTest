@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Controller\MediaOploaderController;
 use App\Dto\PatchUserDto;
 use App\Dto\RegisterEmployeeDto;
 use App\Dto\RegisterUserDto;
@@ -18,6 +19,7 @@ use App\State\GetEmployeesStateProvider;
 use App\State\RegisterEmployeeProcessor;
 use App\State\UserPasswordHasher;
 //use App\State\UserPrestataireStateProvider;
+use App\State\UserPatchProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -76,6 +78,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             securityMessage : "You are not authorized to perform this action !",
             denormalizationContext :  ['groups' => ['user:update']]
         ),
+        new Post(
+            security: "is_granted('ROLE_ADMIN') or ( is_granted('ROLE_USER') and object.getEmail() == user.getEmail())",
+            securityMessage : "You are not authorized to perform this action !",
+            controller: MediaOploaderController::class,
+            deserialize: false,
+            uriTemplate: '/update_profil/{id}',
+            denormalizationContext :  ['groups' => ['user:update']]
+        ),
         new Delete(
             security: "is_granted('ROLE_ADMIN')",
             securityMessage : "You are not authorized to perform this action !",
@@ -93,7 +103,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
 //    #[Groups(['user:read'])]
-    #[Groups('prestataire:approuval')]
+    #[Groups(['prestataire:approuval', 'prestataire:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
@@ -121,12 +131,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:read','user:create', 'user:update','establishment:read','prestataire:collection:read'])]
+    #[Groups([
+        'user:read',
+        'user:create', 'user:update',
+        'establishment:read',
+        'prestataire:collection:read',
+        'prestataire:read'
+    ])]
     #[Assert\NotBlank(groups: ['user:create','prestataire:collection:read'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:create', 'user:update','user:read','prestataire:collection:read','establishment:read'])]
+    #[Groups([
+        'user:create',
+        'user:update',
+        'user:read',
+        'prestataire:collection:read',
+        'establishment:read',
+        'prestataire:read'
+    ])]
     #[Assert\NotBlank(groups: ['user:create'])]
     private ?string $lastname = null;
 
@@ -150,6 +173,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $status = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:update'])]
+    private ?string $image = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?Media $media = null;
 
     public function __construct()
     {
@@ -407,6 +437,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setStatus(?string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getMedia(): ?Media
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?Media $media): static
+    {
+        $this->media = $media;
 
         return $this;
     }

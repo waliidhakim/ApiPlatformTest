@@ -7,6 +7,7 @@ use App\Entity\Test;
 use App\Form\TestType;
 use App\Services\UploaderService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
@@ -18,12 +19,18 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class TestController extends AbstractController
 {
+
     #[Route('/test', name: 'app_test')]
     #[IsGranted('PUBLIC_ACCESS')]
-    public function index(): Response
-    {   
+    public function index(ParameterBagInterface $params): Response
+    {
 
-        echo xdebug_info();
+        // Ou
+        // $frontUrl = getenv('FRONT_URL') ?: 'Valeur par défaut';
+        $izan  = "izan";
+        dd("izzzancc");
+
+        //echo xdebug_info();
         return $this->render('test/index.html.twig', [
             'controller_name' => 'TestController',
         ]);

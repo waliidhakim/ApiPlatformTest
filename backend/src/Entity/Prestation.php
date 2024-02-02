@@ -24,13 +24,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext :  ['groups' => ['prestation:read']]
         ),
         new GetCollection(
-            security: "is_granted('ROLE_ADMIN')",
-            securityMessage : "You don't have permission to perform this action",
+//            security: "is_granted('ROLE_ADMIN')",
+//            securityMessage : "You don't have permission to perform this action",
             normalizationContext :  ['groups' => ['prestation:collection:read']]
         ),
-        new Patch (
 
+        new GetCollection(
+            security: "is_granted('ROLE_PUBLIC_ACCESS')",
+            securityMessage : "You don't have permission to perform this action",
+            uriTemplate: '/prestations/public',
+            normalizationContext :  ['groups' => ['prestation:collection:read:public']]
         ),
+
         new Post(
             denormalizationContext : ['prestation:create']
         ),
@@ -53,19 +58,19 @@ class Prestation
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestation:collection:read','prestation:read'])]
+    #[Groups(['prestation:collection:read','prestation:read','prestation:collection:read:public'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestation:collection:read','prestation:read'])]
+    #[Groups(['prestation:collection:read','prestation:read','prestation:collection:read:public'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['prestation:collection:read','prestation:read'])]
+    #[Groups(['prestation:collection:read','prestation:read','prestation:collection:read:public'])]
     private ?int $duration = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['prestation:collection:read','prestation:read'])]
+    #[Groups(['prestation:collection:read','prestation:read','prestation:collection:read:public'])]
     private ?float $price = null;
 
     #[ORM\ManyToOne(inversedBy: 'prestations')]
@@ -73,7 +78,7 @@ class Prestation
     private ?Establishment $establishment = null;
 
     #[ORM\ManyToOne(inversedBy: 'prestations')]
-    #[Groups(['prestation:collection:read'])]
+    #[Groups(['prestation:collection:read','prestation:collection:read:public'])]
     private ?Category $category = null;
 
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Booking::class)]
