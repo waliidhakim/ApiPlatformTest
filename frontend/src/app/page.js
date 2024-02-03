@@ -9,7 +9,8 @@ import Carousel from '../../components/Carousel/Carousel';
 // import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from '../../components/context/authContext';
-
+import { AuthContextProvider } from '../../components/context/authContext';
+import { AppWrapper } from '../../components/contextTest2/context';
 
 export default function Home({children}) {
 
@@ -20,19 +21,24 @@ export default function Home({children}) {
   // console.log("user auth : ", user );
   
   return (
-    
-      <AuthProvider>
+      //  <AppWrapper>
           
-          <main className={styles.main}>
-            <Navbar></Navbar>
-            <h1>Home page</h1>
-            <SearchBar onSearch={handleSearch} />
+      
+          <>
+            <main className={styles.main}>
+              <Navbar></Navbar>
+              <h1>Home page</h1>
+              <SearchBar onSearch={handleSearch} />
+              
+              <Carousel/>
+              {children}
             
-            <Carousel/>
-            {children}
-          
-          </main>
-      </AuthProvider>
+            </main>
+          </>
+        
+        
+      
+      
    
     
   )

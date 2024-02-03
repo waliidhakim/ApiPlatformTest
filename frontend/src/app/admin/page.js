@@ -8,6 +8,11 @@ import PrestataireDetailsModal from '../../../components/Modals/PrestataireModal
 import EditPrestataireModal from '../../../components/Modals/PrestataireModals/editPrestataireModal';
 import EtabDetailsModal from '../../../components/Modals/EtabModals/etabDetailsModal';
 import EditEtabModal from '../../../components/Modals/EtabModals/editEtabModal';
+import Navbar from '../../../components/NavBar/Navbar';
+import { useAppContext } from '../../../components/contextTest2/context';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuildingCircleArrowRight, faUser } from '@fortawesome/free-solid-svg-icons';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 
 import {extractId, extractRole} from './../lib/utils';
@@ -17,11 +22,19 @@ const Page = () => {
     const [users, setUsers] = useState([]);
     const [prestataires, setPrestataires] = useState([]);
     const [establishments, setEstablishments] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+
+    const [loadingUsers, setLoadingUsers] = useState(true);
+    const [loadingPrestas, setLoadingPrestas] = useState(true);
+    const [loadingEtabs, setLoadingEtabs] = useState(true);
+
+    const [errorUsers, setErrorUsers] = useState(null);
+    const [errorPrestas, setErrorPrestas] = useState(null);
+    const [errorEtabs, setErrorEtabs] = useState(null);
+
     const [editingUser, setEditingUser] = useState(null);
     const [editingPresta, setEditingPresta] = useState(null);
     // const [createUser, setCreateUser] = useState(null);
+
     const [detailUser, setDetailUser] = useState(null);
     const [detailPrestataire, setDetailPrestataire] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,16 +42,47 @@ const Page = () => {
     const [detailEtablissement, setDetailEtablissement] = useState(null);
     const [editingEtab, setEditingEtab ] = useState(null);
 
+    const context = useAppContext();
+
+    //stats
+    const [roleCounts, setRoleCounts] = useState({});
+
+    //console.log("infos context from admin", context);
+    const {user} = context;
+
+    let graphData = {};
+
     const fetchUsers = async () => {
         try {
             const data = await fetchData(`${process.env.NEXT_PUBLIC_API_URL}/users`);
-            console.log("data :" , data['hydra:member']);
+            console.log("data userssss:" , data['hydra:member']);
+
+            const counts = {};
+            data['hydra:member'].forEach(user => {
+                user.roles.forEach(role => {
+                    if (!counts[role]) {
+                        counts[role] = 0;
+                    }
+                    counts[role]++;
+                });
+            });
+            setRoleCounts(counts);
+            graphData = Object.keys(roleCounts).map(role => ({
+                name: role,
+                count: roleCounts[role]
+            }));
+
             setUsers(data['hydra:member']);
-            setLoading(false)
         } catch (error) {
-            console.error('Error fetching users:', error);
-            setError(error);
-            setLoading(false);
+            console.log('Error fetching users:', error);
+            if (error = '403')
+                setErrorUsers("Vous n'avez pas accès à cette section");
+            else {
+                setErrorUsers("Une erreur est survenue. Veuillez réessayer");
+            }
+        }
+        finally{
+            setLoadingUsers(false);
         }
     };
 
@@ -47,24 +91,37 @@ const Page = () => {
             const data = await fetchData(`${process.env.NEXT_PUBLIC_API_URL}/prestataires`);
             console.log("fetching data (presta) :" , data['hydra:member']);
             setPrestataires(data['hydra:member']);
-            setLoading(false)
         } catch (error) {
-            console.error('Error fetching prestataires:', error);
-            setError(error);
-            setLoading(false);
+            console.log('Error fetching prestas:', error);
+            if (error = '403')
+                setErrorPrestas("Vous n'avez pas accès à cette section");
+            else {
+                setErrorPrestas("Une erreur est survenue. Veuillez réessayer");
+            }
+            
+        }
+        finally{
+            setLoadingPrestas(false);
         }
     };
 
     const fetchEstablishments = async () => {
         try {
             const data = await fetchData(`${process.env.NEXT_PUBLIC_API_URL}/establishments`);
-            console.log("data :" , data['hydra:member']);
+            console.log("data etabs :" , data['hydra:member']);
             setEstablishments(data['hydra:member']);
-            setLoading(false)
+           
         } catch (error) {
-            console.error('Error fetching establishments:', error);
-            setError(error);
-            setLoading(false);
+            console.log('Error fetching users:', error);
+            if (error = '403')
+                setErrorEtabs("Vous n'avez pas accès à cette section");
+            else {
+                setErrorEtabs("Une erreur est survenue. Veuillez réessayer");
+            }
+            
+        }
+        finally{
+            setLoadingEtabs(false);
         }
     };
     
@@ -143,7 +200,7 @@ const Page = () => {
                 throw new Error('Failed to delete user');
             }
     
-            await fetchUsers(); // Rafraîchir la liste des utilisateurs après la suppression
+            const updatedUsers = await fetchUsers(); // Rafraîchir la liste des utilisateurs après la suppression
         } catch (error) {
             console.error('Error deleting user:', error);
         }
@@ -265,151 +322,203 @@ const Page = () => {
         }
         setEditingEtab(null);
     };
+    // graphe users
+    graphData = Object.keys(roleCounts).map(role => ({
+        name: role,
+        count: roleCounts[role]
+    }));
 
     return (
-        <div>
-            <h1>Liste des utilisateurs</h1>
-            {loading && <div>Loading...</div> }
-            {error && <div>Error: {error.message}</div> }
-            <button onClick={handleOpenModal}>Créer un Utilisateur</button>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Identifiant</th>
-                        <th>Prénom</th>
-                        <th>Nom</th>
-                        <th>Email</th>
-                        <th>Rôle</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user['@id']}>
-                            <td>{extractId(user['@id'])}</td>
-                            <td>{user.firstname}</td>
-                            <td>{user.lastname}</td>
-                            <td>{user.email}</td>
-                            <td>{user.roles.map(role => extractRole(role)).join(', ')}</td>
-                            <td>    
-                                <button onClick={() => handleUserDetailsClick(user)}>Détails</button>
-                                <button onClick={() => handleEditUserClick(user)}>Modifier</button>  
-                                <button onClick={() => handleDeleteUser(user['@id'])}>Supprimer</button>
-                            </td>
+        <>  
+            <Navbar></Navbar>
+            <div>
+                <h1>Liste des utilisateurs</h1>
+                {loadingUsers && <div>Chargement...</div> }
+                {errorUsers != null ? <div>{errorUsers}</div>  : <button onClick={handleOpenModal}>Créer un Utilisateur</button> }
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Identifiant</th>
+                            <th>Prénom</th>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Photo</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-            
-            <h1>Liste des prestataires</h1>
-            <button>Créer un Préstataire</button>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Identifiant</th>
-                        <th>Nom du prestataire</th>
-                        <th>Secteur d'activité</th>
-                        <th>Statut</th>
-                        <th>Propriétaire</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {prestataires.map(prestataire => (
-                        <tr key={prestataire['@id']}>
-                            <td>{extractId(prestataire['@id'])}</td>
-                            <td>{prestataire.name}</td>
-                            <td>{prestataire.sector}</td>
-                            <td>{prestataire.status}</td>
-                            <td>{prestataire.owner.lastname}</td>
-                            <td>    
-                                <button onClick={() => handlePrestaDetailsClick(prestataire)}>Détails</button>
-                                <button onClick={() => handleEditPrestaClick(prestataire)}>Modifier</button>  
-                                <button onClick={() => {}}>Supprimer</button>
-                            </td>
+                    </thead>
+                    <tbody>
+                        {users.map(user => (
+                            <tr key={user['@id']}>
+                                <td>{extractId(user['@id'])}</td>
+                                <td>{user.firstname}</td>
+                                <td>{user.lastname}</td>
+                                <td>{user.email}</td>
+                                <td>{user.roles.map(role => extractRole(role)).join(', ')}</td>
+                                <td>
+                                    {user.image ? (
+                                            <img 
+                                                src={user.image} 
+                                                alt={`Image de ${user.name}`} 
+                                                style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }} 
+                                            />
+                                        ) : (
+                                            
+                                            <div style={{ fontSize: '40px' }}>
+                                                <FontAwesomeIcon icon={faUser} />
+                                            </div>)}
+                                </td>
+                                <td>    
+                                    <button onClick={() => handleUserDetailsClick(user)}>Détails</button>
+                                    <button onClick={() => handleEditUserClick(user)}>Modifier</button>  
+                                    <button onClick={() => handleDeleteUser(user['@id'])}>Supprimer</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+         
+                <BarChart width={800} height={300} data={graphData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="count" fill="#8884d8" />
+                </BarChart>
+                
+                <h1>Liste des prestataires</h1>
+                {loadingPrestas && <div>Chargement...</div> }
+                {errorPrestas != null ? <div>{errorPrestas}</div>  : <button onClick={handleOpenModal}>Créer un Prestataire</button> }
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Identifiant</th>
+                            <th>Nom du prestataire</th>
+                            <th>Secteur d'activité</th>
+                            <th>Statut</th>
+                            <th>Propriétaire</th>
+                            <th>Image</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {prestataires.map(prestataire => (
+                            <tr key={prestataire['@id']}>
+                                <td>{extractId(prestataire['@id'])}</td>
+                                <td>{prestataire.name}</td>
+                                <td>{prestataire.sector}</td>
+                                <td>{prestataire.status}</td>
+                                <td>{prestataire.owner.lastname}</td>
+                                <td>{prestataire.owner.lastname}</td>
+                                <td>
+                                    {prestataire.image ? (
+                                            <img 
+                                                src={prestataire.image} 
+                                                alt={`Image de ${prestataire.name}`} 
+                                                style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }} 
+                                            />
+                                        ) : (
+                                            
+                                            <div style={{ fontSize: '45px', color: 'gray' }}>
+                                                <FontAwesomeIcon icon={faBuildingCircleArrowRight} />
+                                            </div>)}
+                                </td>
+                                <td>    
+                                    <button onClick={() => handlePrestaDetailsClick(prestataire)}>Détails</button>
+                                    <button onClick={() => handleEditPrestaClick(prestataire)}>Modifier</button>  
+                                    <button onClick={() => {}}>Supprimer</button>
+                                </td>
+                                
+                                
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
 
-            <h1>Liste des etablissements</h1>
-            <button>Créer un Etablissement</button>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Identifiant</th>
-                        <th>Nom</th>
-                        <th>Prestataire</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {establishments.map(establishment => (
-                        <tr key={establishment['@id']}>
-                            <td>{extractId(establishment['@id'])}</td>
-                            <td>{establishment.name}</td>
-                            <td>{establishment.relateTo.name}</td>
-                            <td>    
-                                <button onClick={() => handleEtabDetailsClick(establishment)}>Détails</button>
-                                <button onClick={() => handleEditEtabClick(establishment)}>Modifier</button>  
-                                <button onClick={() => {}}>Supprimer</button>
-                            </td>
+                <h1>Liste des etablissements</h1>
+                {loadingEtabs && <div>Chargement...</div> }
+                {errorEtabs != null ? <div>{errorEtabs}</div>  : <button onClick={handleOpenModal}>Créer un Etablissement</button> }
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Identifiant</th>
+                            <th>Nom</th>
+                            <th>Prestataire</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {establishments.map(establishment => (
+                            <tr key={establishment['@id']}>
+                                <td>{extractId(establishment['@id'])}</td>
+                                <td>{establishment.name}</td>
+                                <td>{establishment.relateTo.name}</td>
+                                <td>    
+                                    <button onClick={() => handleEtabDetailsClick(establishment)}>Détails</button>
+                                    <button onClick={() => handleEditEtabClick(establishment)}>Modifier</button>  
+                                    <button onClick={() => {}}>Supprimer</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
 
-            {editingUser && (
-                <EditUserModal 
-                    user={editingUser} 
-                    onClose={() => setEditingUser(null)} 
-                    onSave={handleSaveEditedUser}
-                />
-            )}
+                {editingUser && (
+                    <EditUserModal 
+                        user={editingUser} 
+                        onClose={() => setEditingUser(null)} 
+                        onSave={handleSaveEditedUser}
+                    />
+                )}
 
-            <CreateUserModal 
-                isOpen={isModalOpen} 
-                onClose={handleCloseModal} 
-                onSubmit={handleCreateUserSubmit} 
-            />
-            
+                <CreateUserModal 
+                    isOpen={isModalOpen} 
+                    onClose={handleCloseModal} 
+                    onSubmit={handleCreateUserSubmit} 
+                />
+                
 
-            {detailUser && (
-                <UserDetailsModal 
-                    user={detailUser} 
-                    onClose={() => setDetailUser(null)} 
-                />
-            )}
-            {/* -------------------------------- */}
-            {detailPrestataire && (
-                <PrestataireDetailsModal 
-                    prestataire={detailPrestataire} 
-                    onClose={() => setDetailPrestataire(null)} 
-                />
-            )}      
+                {detailUser && (
+                    <UserDetailsModal 
+                        user={detailUser} 
+                        onClose={() => setDetailUser(null)} 
+                    />
+                )}
+                {/* -------------------------------- */}
+                {detailPrestataire && (
+                    <PrestataireDetailsModal 
+                        prestataire={detailPrestataire} 
+                        onClose={() => setDetailPrestataire(null)} 
+                    />
+                )}      
 
-            {editingPresta && (
-                <EditPrestataireModal 
-                    prestataire={editingPresta} 
-                    onClose={() => setEditingPresta(null)} 
-                    onSave={handleSaveEditedPresta}
-                />
-            )}
+                {editingPresta && (
+                    <EditPrestataireModal 
+                        prestataire={editingPresta} 
+                        onClose={() => setEditingPresta(null)} 
+                        onSave={handleSaveEditedPresta}
+                    />
+                )}
 
-            {/* -------------------------------- */}
-            {detailEtablissement && (
-                <EtabDetailsModal 
-                    etablissement={detailEtablissement} 
-                    onClose={() => setDetailEtablissement(null)} 
-                />
-            )}
+                {/* -------------------------------- */}
+                {detailEtablissement && (
+                    <EtabDetailsModal 
+                        etablissement={detailEtablissement} 
+                        onClose={() => setDetailEtablissement(null)} 
+                    />
+                )}
 
-            {editingEtab && (
-                <EditEtabModal 
-                    etablissement={editingEtab} 
-                    onClose={() => setEditingEtab(null)} 
-                    onSave={handleSaveEditedEtab}
-                />
-            )}
-        </div>
+                {editingEtab && (
+                    <EditEtabModal 
+                        etablissement={editingEtab} 
+                        onClose={() => setEditingEtab(null)} 
+                        onSave={handleSaveEditedEtab}
+                    />
+                )}
+            </div>
+        </>
     );
 };
 

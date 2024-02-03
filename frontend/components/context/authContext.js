@@ -51,7 +51,7 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(null);
+    const [token, setToken] = useState(null);   
 
     useEffect(() => {
         const storedToken = localStorage.getItem('jwtToken');
@@ -81,3 +81,4 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => useContext(AuthContext);
     
+

@@ -6,13 +6,13 @@ use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Aws\S3\S3Client;
+use Aws\S3\S3Client;   // cette dépendance est à installer !
 
 class UploaderService
 {
 
 //    private $env;
-    private $bucketName = 'challange-esgi';
+    private $bucketName = 'challange-esgi';    // nom de ton bucket que tu devras créer sur aws
 
     public function __construct(
         private SluggerInterface $slugger,

@@ -76,16 +76,22 @@ import styles from './Carousel.module.css';
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
 import fetchData from '@/app/lib/fetchData';
+import { useAppContext } from '../contextTest2/context';
 
 const PrestationsCarousel = () => {
   const [prestations, setPrestations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const {user, setUser} = useAppContext();
+
+  // console.log("infos user from carousel", user);  
+
   useEffect(() => {
     const fetchPresataires = async () => {
       try {
         const data = await fetchData(`${process.env.NEXT_PUBLIC_API_URL}/prestations`);
+        // console.log("les prestations : ", data['hydra:member']);
         setPrestations(data['hydra:member']);
         setLoading(false);
       } catch (error) {

@@ -4,10 +4,16 @@ import {extractId} from '../../../src/app/lib/utils';
 import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAppContext } from '../../contextTest2/context';
 
 const PrestataireDetailsModal = ({ prestataire, onClose }) => {
     const router = useRouter();  
     const [isLoading, setIsLoading] = useState(false);
+
+    const context = useAppContext();
+
+
+    const {user} = context;
 
     const handleAction = async (action) => {
         setIsLoading(true);
@@ -31,7 +37,7 @@ const PrestataireDetailsModal = ({ prestataire, onClose }) => {
                 onClose();
                 window.location.href = '/admin';
             }, 1000); 
-            // router.push('/admin');
+            router.push('/admin');
         } else {
             // Gérez l'erreur ici
             console.error("Erreur lors de l'opération");
@@ -55,12 +61,13 @@ const PrestataireDetailsModal = ({ prestataire, onClose }) => {
                 <p><strong>Statut de la demande d'approbation : </strong> {prestataire.status}</p>
                 <p><strong>Propriétaire : </strong> {prestataire.owner.firstname} {prestataire.owner.lastname} </p>
                 <button onClick={onClose}>Fermer</button>
-                {prestataire.status === 'waiting for approval' && (
+                {prestataire.status === 'waiting for approval' & user.role == "ROLE_ADMIN" ?
+                    
                 <>
                     <button onClick={() => handleAction('approve')}>Approuver</button>
                     <button onClick={() => handleAction('reject')}>Rejeter</button>
-                </>
-            )}
+                </> : ''
+                }
                 {isLoading && <div>Chargement...</div> }
             </div>
 

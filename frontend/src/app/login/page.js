@@ -2,12 +2,14 @@
 import React from 'react';
 import { useState , useContext } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAppContext } from '../../../components/contextTest2/context';
 
 
 
 export default function page({children}) {
 
-    
+    const {user, setUser} = useAppContext();
+    console.log("current context in login:", user);
     const [formData, setFormData] = useState(
         {
             email: "",
@@ -28,7 +30,7 @@ export default function page({children}) {
    
     const handleSubmit = async (e) =>{
         e.preventDefault();
-        console.log(JSON.stringify(formData));
+        //console.log(JSON.stringify(formData));
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL_SHORT}/login`, {
@@ -42,10 +44,23 @@ export default function page({children}) {
             }
 
             const responseData = await response.json();
+            //console.log("responseData :", )
             const token = responseData.token;
-            
-            console.log('Token:', token);
+            // context.setUser(re)
+            //console.log('Token:', token);
             localStorage.setItem('jwtToken', token);
+
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const decodedPayload = JSON.parse(window.atob(base64));
+
+            console.log("payload : ", decodedPayload)
+
+            setUser({ id : decodedPayload.user_id , token : token, role : decodedPayload.roles[0]});
+
+            
+            localStorage.setItem('userId', decodedPayload.user_id);
+
             router.push('/');
             
         } catch (error) {
