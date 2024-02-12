@@ -13,12 +13,12 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class AssignManagerToEstablishmentStateProcessor implements ProcessorInterface
+readonly class AssignManagerToEstablishmentStateProcessor implements ProcessorInterface
 {
-    public function __construct(private readonly Security $security,
-                                private readonly EstablishmentRepository $establishmentRepository,
-                                private readonly UserRepository $userRepository,
-                                private readonly EntityManagerInterface $manager
+    public function __construct(private Security                $security,
+                                private EstablishmentRepository $establishmentRepository,
+                                private UserRepository          $userRepository,
+                                private EntityManagerInterface  $manager
     )
     {
     }

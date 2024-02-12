@@ -49,7 +49,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['user:read']]
         ),
         new Get(
-            security: "is_granted('ROLE_ADMIN') or ( is_granted('ROLE_USER') and object.getEmail() == user.getEmail())",
+            security: "( is_granted('ROLE_USER') and object.getEmail() == user.getEmail())",
             securityMessage : "You are not authorized to perform this action !",
             normalizationContext: ['groups' => ['user:read']]
 
@@ -103,17 +103,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
 //    #[Groups(['user:read'])]
-    #[Groups(['prestataire:approuval', 'prestataire:read'])]
+    #[Groups(['prestataire:approuval', 'prestataire:read','prestataire:employees:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(['user:read','user:create','establishment:read'])]
+    #[Groups(['user:read','user:create','establishment:read','prestataire:employees:read'])]
     #[Assert\NotBlank(groups: ['user:create'])]
     #[Assert\Email(groups: ['user:create'], message:"Invalid email adress")]
     private ?string $email = null;
 
     #[ORM\Column]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read','prestataire:employees:read'])]
     private array $roles = [];
 
     /**
@@ -136,7 +136,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'user:create', 'user:update',
         'establishment:read',
         'prestataire:collection:read',
-        'prestataire:read'
+        'prestataire:read',
+        'prestataire:employees:read',
+        'booking:read'
     ])]
     #[Assert\NotBlank(groups: ['user:create','prestataire:collection:read'])]
     private ?string $firstname = null;
@@ -148,7 +150,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'user:read',
         'prestataire:collection:read',
         'establishment:read',
-        'prestataire:read'
+        'prestataire:read',
+        'prestataire:employees:read',
+        'booking:read'
     ])]
     #[Assert\NotBlank(groups: ['user:create'])]
     private ?string $lastname = null;
@@ -172,14 +176,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $managedEstablishments;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups([
+        'prestataire:employees:read',
+        'establishment:read',
+    ])]
     private ?string $status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:read', 'user:update'])]
+    #[Groups([
+        'user:read',
+        'user:update',
+        'prestataire:employees:read',
+        'establishment:read',
+    ])]
     private ?string $image = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Media $media = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups([
+        'user:create',
+        'user:update',
+        'user:read',
+        'prestataire:collection:read',
+        'establishment:read',
+        'prestataire:read',
+        'prestataire:employees:read'
+    ])]
+    private ?string $address = null;
+
+    #[ORM\OneToMany(mappedBy: 'employee', targetEntity: EmployeeSchedule::class)]
+    private Collection $employeeSchedules;
 
     public function __construct()
     {
@@ -188,6 +216,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->bookings = new ArrayCollection();
         $this->prestataires = new ArrayCollection();
         $this->managedEstablishments = new ArrayCollection();
+        $this->employeeSchedules = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -461,6 +490,48 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMedia(?Media $media): static
     {
         $this->media = $media;
+
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): static
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EmployeeSchedule>
+     */
+    public function getEmployeeSchedules(): Collection
+    {
+        return $this->employeeSchedules;
+    }
+
+    public function addEmployeeSchedule(EmployeeSchedule $employeeSchedule): static
+    {
+        if (!$this->employeeSchedules->contains($employeeSchedule)) {
+            $this->employeeSchedules->add($employeeSchedule);
+            $employeeSchedule->setEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmployeeSchedule(EmployeeSchedule $employeeSchedule): static
+    {
+        if ($this->employeeSchedules->removeElement($employeeSchedule)) {
+            // set the owning side to null (unless already changed)
+            if ($employeeSchedule->getEmployee() === $this) {
+                $employeeSchedule->setEmployee(null);
+            }
+        }
 
         return $this;
     }

@@ -3,6 +3,7 @@ import React from 'react';
 import { useState , useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppContext } from '../../../components/contextTest2/context';
+import Navbar from '../../../components/NavBar/Navbar';
 
 
 
@@ -68,26 +69,33 @@ export default function page({children}) {
         }
     }
 
+    const handleRegisterButtonClick = () =>{
+        router.push('/signup');
+    };
+
   return (
-    <>
+    <>  
+        <Navbar></Navbar>
         <div className="card">
-                <h4 className="card-header">Login</h4>
+                <h2 className="card-header">Se connecter</h2>
                 <div className="card-body">
                     <form onSubmit={ handleSubmit }>
                     
                         <div className="form-group">
                             <label>Email : </label>
-                            <input name="email" type="text" onChange={handleChange} placeholder='Enter your email adress' />
+                            <input name="email" type="text"  onChange={handleChange} placeholder='Saisir votre adresse mail' />
                             
                         </div>
                         <div className="form-group">
-                            <label>Password : </label>
-                            <input name="password" type="password" onChange={handleChange} placeholder='Enter your password' />
+                            <label>Mot de passe : </label>
+                            <input name="password" type="password"  onChange={handleChange} placeholder='Saisir votre mot de passe' />
                         </div>
 
                         <button className="btn btn-primary">
-                            Login
+                            Connexion
                         </button>
+
+                        <p>Nouveau parmis nous ? <button onClick={handleRegisterButtonClick}>Créer un compte</button> </p>
                     </form>
                 </div>
         </div>

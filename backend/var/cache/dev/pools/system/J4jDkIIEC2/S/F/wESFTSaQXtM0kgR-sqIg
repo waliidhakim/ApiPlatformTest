@@ -552,8 +552,8 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                 19 => null,
             ],
             'security' => [
-                2 => 'is_granted(\'ROLE_ADMIN\')',
-                4 => 'is_granted(\'ROLE_ADMIN\')',
+                2 => 'is_granted(\'ROLE_PUBLIC_ACCESS\')',
+                4 => null,
                 null,
                 7 => null,
                 'is_granted(\'ROLE_ADMIN\')',
@@ -565,7 +565,7 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
             ],
             'securityMessage' => [
                 2 => 'You don\'t have permission to perform this action',
-                4 => 'You don\'t have permission to perform this action',
+                4 => null,
                 null,
                 7 => null,
                 'You don\'t have permission to perform this action',

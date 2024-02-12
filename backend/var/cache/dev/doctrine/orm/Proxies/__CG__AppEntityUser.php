@@ -16,9 +16,11 @@ class User extends \App\Entity\User implements \Doctrine\ORM\Proxy\InternalProxy
     }
 
     private const LAZY_OBJECT_PROPERTY_SCOPES = [
+        "\0".parent::class."\0".'address' => [parent::class, 'address', null],
         "\0".parent::class."\0".'bookings' => [parent::class, 'bookings', null],
         "\0".parent::class."\0".'confirmPassword' => [parent::class, 'confirmPassword', null],
         "\0".parent::class."\0".'email' => [parent::class, 'email', null],
+        "\0".parent::class."\0".'employeeSchedules' => [parent::class, 'employeeSchedules', null],
         "\0".parent::class."\0".'establishment' => [parent::class, 'establishment', null],
         "\0".parent::class."\0".'feedbacks' => [parent::class, 'feedbacks', null],
         "\0".parent::class."\0".'firstname' => [parent::class, 'firstname', null],
@@ -31,9 +33,11 @@ class User extends \App\Entity\User implements \Doctrine\ORM\Proxy\InternalProxy
         "\0".parent::class."\0".'prestataires' => [parent::class, 'prestataires', null],
         "\0".parent::class."\0".'roles' => [parent::class, 'roles', null],
         "\0".parent::class."\0".'status' => [parent::class, 'status', null],
+        'address' => [parent::class, 'address', null],
         'bookings' => [parent::class, 'bookings', null],
         'confirmPassword' => [parent::class, 'confirmPassword', null],
         'email' => [parent::class, 'email', null],
+        'employeeSchedules' => [parent::class, 'employeeSchedules', null],
         'establishment' => [parent::class, 'establishment', null],
         'feedbacks' => [parent::class, 'feedbacks', null],
         'firstname' => [parent::class, 'firstname', null],

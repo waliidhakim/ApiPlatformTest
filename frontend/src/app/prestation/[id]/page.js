@@ -5,7 +5,10 @@ import fetchData from '@/app/lib/fetchData';
 // import Calendar from '../../../../components/Calendar/Calendar';
 // import TimeslotCalendar from 'react-timeslot-calendar';
 import ScheduleSelector from 'react-schedule-selector'
-
+import Navbar from '../../../../components/NavBar/Navbar';
+import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCar } from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -14,7 +17,7 @@ const PrestationPage = ({ params }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [availableDates, setAvailableDates] = useState([]);
-//const router = useRouter();
+  const router = useRouter();
   const {id} = params;
 
   const [schedule, setSchedule] = useState([]);
@@ -64,7 +67,7 @@ const PrestationPage = ({ params }) => {
 
   let disabledTimeslots = [
     {
-        startDate: 'January 26th 2024, 2:00:00 PM',
+        startDate: 'February 11th 2024, 1:00:00 PM',
         format: 'MMMM Do YYYY, h:mm:ss A',
     },
     {
@@ -83,35 +86,49 @@ const PrestationPage = ({ params }) => {
         showFormat: 'h:mm A', // They will be displayed as Hour:Minutes AM/PM
     }
 
+    const handlePaymentButtonClick = () => {
+      const scheduleString = encodeURIComponent(JSON.stringify(schedule));
+      router.push(`/payment?prestationId=${prestation.id}&prestationName=${encodeURIComponent(prestation.name)}&schedule=${scheduleString}`);
+    };
+
+
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div>
+      <Navbar></Navbar>
       {prestation && (
         <>
           <h1>{prestation.name} prestation</h1>
-          <img src="https://challange-esgi.s3.eu-central-1.amazonaws.com/users/125.jpg" alt={prestation.name} />
+          
+          {/* <img src="https://challange-esgi.s3.eu-central-1.amazonaws.com/users/125.jpg" alt={prestation.name} /> */}
+          {prestation.image ? 
+                (
+                    <img 
+                        src={prestation.image} 
+                        alt={`Image de ${prestation.name}`} 
+                        // style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                ) : 
+                        
+                (
+                            
+                    <div style={{ fontSize: '40px' }}>
+                        <FontAwesomeIcon icon={faCar} />
+                    </div>
+                )
+           }
+          
+          
           <p>{prestation.description}</p>
           <p>Prix: {prestation.price}</p>
           <p>Establishment: {prestation.establishment.name}</p>
           <p>Establishment address: {prestation.establishment.address}</p>
-          {/* <Calendar /> */}
-          {/* <TimeslotCalendar
-                 initialDate={moment().format()} 
-                 timeslots={timeslots}
-                 disabledTimeslots= {disabledTimeslots}
-                 maxTimeslots = "2"
-                 renderDays={ignoreWeekends}
-                 onSelectTimeslot = {onSelectTimeslot}
-                timeslotProps = {timeslotProps}
-                //  onTimeslotClick={(timeslot) => {
-                //     console.log('Selected timeslot:', timeslot);
-                    
-                //   }}
-                 
-        
-          /> */}
+          
+          <h2>Choisir un créneau </h2>
+
           <ScheduleSelector
             selection={schedule}
             numDays={5}
@@ -120,7 +137,12 @@ const PrestationPage = ({ params }) => {
             hourlyChunks={1}
             dateFormat={'MMMM Do'}
             onChange={handleChange}
+            disabledTimeslots={disabledTimeslots}
+            selectedColor= {'rgba(16, 1, 248, 1)'}
           />
+
+
+          <button onClick={handlePaymentButtonClick}>Valider</button>
 
         </>
       )}

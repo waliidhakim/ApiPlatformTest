@@ -8,13 +8,18 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\AddEstablishmentToPrestataireController;
+use App\Controller\AddPrestationToEstablishmentController;
+use App\Controller\DeleteEstablishmentController;
 use App\Controller\GetEstablishmentsByPrestataireController;
 use App\Dto\AssignManagerToEtabDto;
 use App\Repository\EstablishmentRepository;
 use App\State\AssignManagerToEstablishmentStateProcessor;
 use App\State\CreateEstablishmentProcessor;
 use App\State\GetEstablishmentByPrestataireStateProvider;
+use App\State\GetEstablishmentsStateProvider;
 use App\State\GetEstablishmentStateProvider;
+use App\State\GetOneEstablishmentStateProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,15 +31,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 
     operations: [
         new Get(
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_MANAGER')",
 //           security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user",
+            provider: GetOneEstablishmentStateProvider::class,
             securityMessage : "You don't have permission to access this page",
             normalizationContext :  ['groups' => ['establishment:read'],['prestation:read'], ['prestataire:read']]
         ),
         new GetCollection(
             security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_PRESTATAIRE') )",
             securityMessage : "You don't have permission to perform this action",
-            provider : GetEstablishmentStateProvider::class ,
+            provider : GetEstablishmentsStateProvider::class ,
             validationContext: ['groups' => ['Default', 'establishment:read']],
             normalizationContext :  ['groups' => ['establishment:read'],['prestation:read'],['user:read'], ['prestataire:read']]
         ),
@@ -52,8 +58,18 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext : ['groups' => ['establishment:create']],
             validationContext: ['groups' => ['Default', 'establishment:create']],
         ),
+        new Post(
+
+            security: "is_granted('ROLE_MANAGER')",
+            securityMessage : "You don't have permission to perform this action",
+            controller: AddPrestationToEstablishmentController::class,
+            deserialize: false,
+//            validationContext: ['groups' => ['Default', 'prestataire:create']],
+            uriTemplate: '/establishments/{id}/addPrestation',
+            denormalizationContext :  ['groups' => ['establishment:add:prestation']]
+        ),
         new Patch(
-            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE') ",
+            security: "is_granted('ROLE_PRESTATAIRE') ",
             securityMessage : "You don't have permission to perform this action",
             processor: AssignManagerToEstablishmentStateProcessor ::class,
             input: AssignManagerToEtabDto::class ,
@@ -64,7 +80,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
         new Delete(
             //soit admin soit le prestataire propriétaire attention !!!
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_PRESTATAIRE')",
+            controller: DeleteEstablishmentController::class,
             securityMessage : "You don't have permission to perform this action",
         )
 
@@ -78,7 +95,8 @@ class Establishment
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups([
-        'establishment:read'
+        'establishment:read',
+        'prestataire:collection:read'
     ])]
     private ?int $id = null;
 
@@ -89,7 +107,9 @@ class Establishment
             'prestataire:establishments:read',
             'prestation:read',
             'establishment:update',
-            'prestataire:read'
+            'prestataire:read',
+            'prestataire:collection:read',
+            'prestataire:add:establishment'
     ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $name = null;
@@ -101,7 +121,8 @@ class Establishment
         'establishment:update',
         'prestataire:establishments:read',
         'prestation:read',
-        'prestataire:read'
+        'prestataire:read',
+        'prestataire:add:establishment'
     ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $address = null;
@@ -111,20 +132,25 @@ class Establishment
         'establishment:read',
         'establishment:create',
         'establishment:update',
-        'prestataire:establishments:read']
-    )]
+        'prestataire:establishments:read',
+        'prestataire:add:establishment'
+    ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $description = null;
 
-    #[ORM\OneToMany(mappedBy: 'establishment', targetEntity: User::class)]
+    #[ORM\OneToMany(mappedBy: 'establishment', targetEntity: User::class, cascade: ['remove'])]
+    #[Groups([
+        'prestataire:employees:read',
+        'establishment:read',
+    ])]
     private Collection $employees;
 
-    #[ORM\ManyToOne(inversedBy: 'establishments',cascade: ['remove'])]
+    #[ORM\ManyToOne(inversedBy: 'establishments')]
     #[Groups(['establishment:create','establishment:read'])]
-
     private ?Prestataire $relateTo = null;
 
     #[ORM\OneToMany(mappedBy: 'establishment', targetEntity: Prestation::class, cascade: ['remove'])]
+    #[Groups(['establishment:read'])]
     private Collection $prestations;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -133,14 +159,19 @@ class Establishment
         'establishment:create',
         'establishment:update',
         'prestataire:establishments:read',
-        'prestataire:read'
+        'prestataire:read',
+        'prestataire:add:establishment'
     ])]
     #[Assert\NotBlank(groups: ['establishment:create'])]
     private ?string $image = null;
 
-    #[ORM\ManyToOne(inversedBy: 'managedEstablishments')]
+
+    #[ORM\ManyToOne(inversedBy: 'managedEstablishments', cascade: ['remove'])]
     #[Groups(['establishment:read', 'prestataire:read'])]
     private ?User $manager = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?Media $media = null;
 
     public function __construct()
     {
@@ -281,6 +312,18 @@ class Establishment
     public function setManager(?User $manager): static
     {
         $this->manager = $manager;
+
+        return $this;
+    }
+
+    public function getMedia(): ?Media
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?Media $media): static
+    {
+        $this->media = $media;
 
         return $this;
     }

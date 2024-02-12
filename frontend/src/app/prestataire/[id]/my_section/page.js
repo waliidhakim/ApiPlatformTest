@@ -5,20 +5,25 @@ import { extractId } from '@/app/lib/utils';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuildingCircleArrowRight, faUser } from '@fortawesome/free-solid-svg-icons';
+import Navbar from '../../../../../components/NavBar/Navbar';
 
 
 
-export default function page() {
+export default function page({params}) {
 
   const router = useRouter();
-
+  const idPresta = params.id;  
   const [loading, setLoading] = useState(true);
   const [prestataires, setPrestataires] = useState([]);
   const [error, setError] = useState(null);
 
   const handleAddPrestataire = () => {
     router.push('/prestataire/ajouter_prestataire');
-};
+  };
+
+  const handleEmployeesButtonClick  = () => {
+    router.push(`/prestataire/${idPresta}/my_employees`);
+  };
   
   const fetchPrestataires = async () => {
     try {
@@ -40,9 +45,10 @@ export default function page() {
   
 
   return (
-    <>
+    <>  
+        <Navbar></Navbar>
         <h1>Prestataire Section</h1>
-
+        <button onClick={handleEmployeesButtonClick}>Mes employées</button>
         <h2>Liste de mes prestataires</h2>
                 <button onClick={handleAddPrestataire}>Ajouter un nouveau prestataire</button>
                 <table>

@@ -10,6 +10,7 @@ use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use App\Repository\UserRepository;
 use Faker\Generator;
@@ -22,6 +23,7 @@ class DataFixtures extends Fixture
     private readonly Generator $faker;
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly EntityManagerInterface  $manager
 
     )
     {
@@ -52,6 +54,15 @@ class DataFixtures extends Fixture
         $admin = $this->createUser("admin", "admin",['ROLE_ADMIN']);
         $manager->persist($admin);
 
+        //employees users
+        $employees = [];
+        for($i=0; $i<10; $i++)
+        {
+            $user = $this->createUser("employee$i", "employee$i", ['ROLE_EMPLOYEE']);
+            $employees[$i] = $user;
+            $manager->persist($user);
+        }
+
 //        ----------------------------------------------------------------------
         //user with ROLE_PRESTATAIRE
         $userPresta1 = $this->createUser("presta1", "presta1",['ROLE_PRESTATAIRE']);
@@ -68,6 +79,8 @@ class DataFixtures extends Fixture
         $manager->persist($userManager1);
         $establishment->setManager($userManager1);
 
+        //add employees
+        $this->addEmployeesToGivenEtab($employees, $establishment);
 
         $prestation1 = $this->createPrestation("Rent Express");
         $category1 = $this->createCategoriy("Professional renting");
@@ -75,6 +88,11 @@ class DataFixtures extends Fixture
         $prestation1->setCategory($category1);
         $manager->persist($prestation1);
         $establishment->addPrestation($prestation1);
+
+        foreach ($employees as $employee)
+        {
+            $establishment->addEmployee($employee);
+        }
 
         $manager->persist($establishment);
 
@@ -141,7 +159,9 @@ class DataFixtures extends Fixture
         $manager->persist($userManager6);
         $establishment6->setManager($userManager6);
         $manager->persist($establishment6);
-        /**/
+
+        /*Create catégories*/
+        $this->createCategories();
 
         //-------------------------------------------------------------------------------------------
 
@@ -271,5 +291,34 @@ class DataFixtures extends Fixture
         $category->setDescription("Description of the category");
         $category->setName($categoryName);
         return $category;
+    }
+
+
+    private function createCategories(): void
+    {
+        $categoryNames = ["Nettoyage", "Coiffure", "Location", "Restauration", "Réparation et maintenance", "Services informatiques", "Formation et éducation", "Transport et logistique", "Événementiel"];
+        $categories = [];
+        foreach ($categoryNames as $categoryName) {
+            $newCategory = new Category();
+            $newCategory->setName($categoryName);
+            $newCategory->setDescription("Prestation dans le thème suivant : ".$categoryName);
+            $this->manager->persist($newCategory); // Correction ici
+            $categories[] = $newCategory;
+        }
+
+        $this->manager->flush(); // Flush une seule fois après toutes les persistances
+
+    }
+
+
+    private function addEmployeesToGivenEtab($employees, Establishment $etab) : void
+    {
+
+        foreach ($employees as $empolyee)
+        {
+            $etab->addEmployee($empolyee);
+            $this->manager->persist($etab);
+        }
+        $this->manager->flush();
     }
 }

@@ -13,6 +13,7 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     'ApiPlatform\\Symfony\\Validator\\Exception\\ValidationException',
                     'App\\Entity\\Booking',
                     'App\\Entity\\Category',
+                    'App\\Entity\\EmployeeSchedule',
                     'App\\Entity\\Establishment',
                     'App\\Entity\\Feedback',
                     'App\\Entity\\Media',
