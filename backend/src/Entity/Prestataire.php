@@ -9,11 +9,14 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Controller\AddEstablishmentToPrestataireController;
+use App\Controller\DeletePrestataireController;
 use App\Controller\GetEstablishmentsByPrestataireController;
 use App\Controller\RegisterPrestataireController;
 use App\Dto\RegisterPrestataireDto;
 use App\Repository\PrestataireRepository;
 use App\State\ApprovePrestataireProcessor;
+use App\State\GetEmployeesByPrestataireStateProvider;
 use App\State\GetEstablishmentByPrestataireStateProvider;
 use App\State\GetPrestatairesForUserStateProvider;
 use App\State\RegisterPrestataireProcessor;
@@ -39,6 +42,19 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/prestataire/register',
             denormalizationContext :  ['groups' => ['prestataire:create']]
         ),
+
+
+        new Post(
+
+            security: "is_granted('ROLE_PRESTATAIRE')",
+            securityMessage : "You don't have permission to perform this action",
+            controller: AddEstablishmentToPrestataireController::class,
+            deserialize: false,
+//            validationContext: ['groups' => ['Default', 'prestataire:create']],
+            uriTemplate: '/prestataire/{id}/addEstablishment',
+            denormalizationContext :  ['groups' => ['prestataire:add:establishment']]
+        ),
+
        new Get(
            security: "is_granted('ROLE_ADMIN') or ( is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user)",
 //           security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user",
@@ -61,6 +77,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext :  ['groups' => ['prestataire:establishments:read']]
         ),
 
+        new GetCollection(
+            security: "( is_granted('ROLE_PRESTATAIRE'))",
+            securityMessage : "You don't have permission to perform this action",
+            uriTemplate: '/prestataire/employees',
+            provider: GetEmployeesByPrestataireStateProvider::class,
+            normalizationContext :  ['groups' => ['prestataire:employees:read']]
+        ),
 
         new Patch(
            security: "is_granted('ROLE_ADMIN') or ( is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user)",
@@ -84,8 +107,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext :  ['groups' => ['prestataire:rejection']]
         ),
        new Delete(
-           security: "is_granted('ROLE_ADMIN')",
-           securityMessage : "You don't have permission to perform this action",
+//           security: "is_granted('ROLE_ADMIN')",
+//           securityMessage : "You don't have permission to perform this action",
+//            path: '/prestataires/{id}',
+            controller: DeletePrestataireController::class,
+            security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user)",
+            securityMessage: "You don't have permission to perform this action",
        )
     ]
 )]
@@ -152,7 +179,10 @@ class Prestataire
     #[ORM\OneToMany(mappedBy: 'relateTo', targetEntity: Establishment::class )]
     #[Groups([
         'prestataire:establishments:read',
-        'prestataire:read'
+        'prestataire:read',
+        'prestataire:collection:read',
+        'prestataire:add:establishment',
+        'prestataire:employees:read'
     ])]
     private Collection $establishments;
 
@@ -165,7 +195,7 @@ class Prestataire
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $status = null;
 
-    #[ORM\ManyToOne(inversedBy: 'prestataires')]
+    #[ORM\ManyToOne(inversedBy: 'prestataires', cascade: ['remove'])]
     #[Groups(['prestataire:collection:read'])]
     private ?User $owner = null;
 

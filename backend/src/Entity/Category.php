@@ -19,12 +19,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
     operations: [
         new Get(
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_PUBLIC_ACCESS')",
             securityMessage : "You don't have permission to perform this action",
         ),
         new GetCollection(
-            security: "is_granted('ROLE_ADMIN')",
-            securityMessage : "You don't have permission to perform this action",
             normalizationContext :  ['groups' => ['category:collection:read'],['prestation:collection:read']]
         ),
         new Patch (
@@ -52,7 +50,12 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['category:collection:read','prestation:collection:read'])]
+    #[Groups([
+        'category:collection:read',
+        'prestation:collection:read',
+        'establishment:read',
+        'prestation:search'
+    ])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]

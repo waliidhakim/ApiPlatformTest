@@ -266,6 +266,33 @@ const Page = () => {
         setEditingPresta(null);
     };
 
+    const handleDeletePresta = async (prestaId) => {
+        const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce prestataire ?");
+        if (!confirmDelete) {
+            return;
+        }
+    
+        try {
+            const token = localStorage.getItem('jwtToken');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/prestataires/${extractId(prestaId)}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: token ? `Bearer ${token}` : '',
+                },
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to delete prestataire');
+            }
+    
+            await fetchPrestataires(); 
+            await fetchEstablishments(); 
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    };
+
+
     const handleOpenModal = () => {
          setIsModalOpen(true);
     };EditEtabModal
@@ -277,7 +304,7 @@ const Page = () => {
     const handleCreateUserSubmit = async () => {
         console.log("admin section");
         setIsModalOpen(false);
-        await fetchUsers();EditEtabModal
+        await fetchUsers();
     };
     // ---------------------
 
@@ -322,6 +349,32 @@ const Page = () => {
         }
         setEditingEtab(null);
     };
+
+    const handleDeleteEtab = async (etabId) => {
+        const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cet établissement ?");
+        if (!confirmDelete) {
+            return;
+        }
+    
+        try {
+            const token = localStorage.getItem('jwtToken');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/establishments/${extractId(etabId)}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: token ? `Bearer ${token}` : '',
+                },
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to delete Establishment');
+            }
+    
+            
+            await fetchEstablishments(); 
+        } catch (error) {
+            console.error('Error deleting establishment:', error);
+        }
+    }
     // graphe users
     graphData = Object.keys(roleCounts).map(role => ({
         name: role,
@@ -428,7 +481,7 @@ const Page = () => {
                                 <td>    
                                     <button onClick={() => handlePrestaDetailsClick(prestataire)}>Détails</button>
                                     <button onClick={() => handleEditPrestaClick(prestataire)}>Modifier</button>  
-                                    <button onClick={() => {}}>Supprimer</button>
+                                    <button onClick={() => handleDeletePresta(prestataire['@id'])}>Supprimer</button>
                                 </td>
                                 
                                 
@@ -454,11 +507,11 @@ const Page = () => {
                             <tr key={establishment['@id']}>
                                 <td>{extractId(establishment['@id'])}</td>
                                 <td>{establishment.name}</td>
-                                <td>{establishment.relateTo.name}</td>
+                                <td>{establishment.relateTo ? establishment.relateTo.name : "Prestataire supprimé"}</td>
                                 <td>    
                                     <button onClick={() => handleEtabDetailsClick(establishment)}>Détails</button>
                                     <button onClick={() => handleEditEtabClick(establishment)}>Modifier</button>  
-                                    <button onClick={() => {}}>Supprimer</button>
+                                    <button onClick={() => handleDeleteEtab(extractId(establishment['@id']))}>Supprimer</button>
                                 </td>
                             </tr>
                         ))}

@@ -266,11 +266,11 @@
       <parameter>/srv/app</parameter>
     </parameter>
     <parameter key="security.role_hierarchy.roles" type="collection">
-      <parameter key="ROLE_EMPLOYE" type="collection">
+      <parameter key="ROLE_EMPLOYEE" type="collection">
         <parameter>ROLE_USER</parameter>
       </parameter>
       <parameter key="ROLE_MANAGER" type="collection">
-        <parameter>ROLE_EMPLOYE</parameter>
+        <parameter>ROLE_EMPLOYEE</parameter>
       </parameter>
       <parameter key="ROLE_PRESTATAIRE" type="collection">
         <parameter>ROLE_MANAGER</parameter>
@@ -633,6 +633,51 @@
     <service id="App\Entity" class="App\Entity" abstract="true">
       <tag name="container.excluded" source="in &quot;config/services.yaml&quot;"/>
     </service>
+    <service id="App\Controller\AddEstablishmentToPrestataireController" class="App\Controller\AddEstablishmentToPrestataireController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <argument type="service" id="App\Services\UploaderService"/>
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+      <argument type="service" id="security.helper"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\AddEstablishmentToPrestataireController"/>
+      </call>
+    </service>
+    <service id="App\Controller\AddPrestationToEstablishmentController" class="App\Controller\AddPrestationToEstablishmentController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <argument type="service" id="App\Services\UploaderService"/>
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+      <argument type="service" id="security.helper"/>
+      <argument type="service" id="App\Repository\CategoryRepository"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\AddPrestationToEstablishmentController"/>
+      </call>
+    </service>
+    <service id="App\Controller\DeleteEstablishmentController" class="App\Controller\DeleteEstablishmentController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <argument type="service" id="security.helper"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\DeleteEstablishmentController"/>
+      </call>
+    </service>
+    <service id="App\Controller\DeletePrestataireController" class="App\Controller\DeletePrestataireController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <argument type="service" id="security.helper"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\DeletePrestataireController"/>
+      </call>
+    </service>
+    <service id="App\Controller\DeteteBookingController" class="App\Controller\DeteteBookingController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <argument type="service" id="security.helper"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\DeteteBookingController"/>
+      </call>
+    </service>
     <service id="App\Controller\GetEstablishmentsByPrestataireController" class="App\Controller\GetEstablishmentsByPrestataireController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
@@ -651,6 +696,12 @@
     <service id="App\Controller\PaymentController" class="App\Controller\PaymentController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
+      <argument type="service" id="security.helper"/>
+      <argument type="service" id="App\Repository\PrestationRepository"/>
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+      <argument type="service" id="lexik_jwt_authentication.jwt_manager"/>
+      <argument type="service" id="App\Repository\UserRepository"/>
+      <argument type="service" id="lexik_jwt_authentication.encoder.lcobucci"/>
       <call method="setContainer">
         <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\PaymentController"/>
       </call>
@@ -673,6 +724,13 @@
         <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\RegistrationController"/>
       </call>
     </service>
+    <service id="App\Controller\ResearchPrestationController" class="App\Controller\ResearchPrestationController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.O2p6Lk7.App\Controller\ResearchPrestationController"/>
+      </call>
+    </service>
     <service id="App\Controller\TestController" class="App\Controller\TestController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
@@ -691,6 +749,7 @@
     <service id="App\DataFixtures\DataFixtures" class="App\DataFixtures\DataFixtures" autowire="true" autoconfigure="true">
       <tag name="doctrine.fixture.orm"/>
       <argument type="service" id="security.user_password_hasher"/>
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
     </service>
     <service id="App\Dto\AssignManagerToEtabDto" class="App\Dto\AssignManagerToEtabDto" autowire="true" autoconfigure="true">
       <tag name="container.error" message="Cannot autowire service &quot;App\Dto\AssignManagerToEtabDto&quot;: argument &quot;$firstname&quot; of method &quot;__construct()&quot; is type-hinted &quot;string&quot;, you should configure its value explicitly."/>
@@ -719,15 +778,27 @@
     </service>
     <service id="App\Purger\CustomPurger" class="App\Purger\CustomPurger" autowire="true" autoconfigure="true">
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
+      <argument type="service" id="App\Repository\EstablishmentRepository"/>
+      <argument type="service" id="App\Repository\PrestataireRepository"/>
+      <argument type="service" id="App\Repository\PrestationRepository"/>
+      <argument type="service" id="App\Repository\CategoryRepository"/>
     </service>
     <service id="App\Purger\CustomPurgerFactory" class="App\Purger\CustomPurgerFactory" autowire="true" autoconfigure="true">
       <tag name="doctrine.fixtures.purger_factory" alias="my_purger"/>
+      <argument type="service" id="App\Repository\EstablishmentRepository"/>
+      <argument type="service" id="App\Repository\PrestataireRepository"/>
+      <argument type="service" id="App\Repository\PrestationRepository"/>
+      <argument type="service" id="App\Repository\CategoryRepository"/>
     </service>
     <service id="App\Repository\BookingRepository" class="App\Repository\BookingRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
     <service id="App\Repository\CategoryRepository" class="App\Repository\CategoryRepository" autowire="true" autoconfigure="true">
+      <tag name="doctrine.repository_service"/>
+      <argument type="service" id="doctrine"/>
+    </service>
+    <service id="App\Repository\EmployeeScheduleRepository" class="App\Repository\EmployeeScheduleRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
       <argument type="service" id="doctrine"/>
     </service>
@@ -794,6 +865,17 @@
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
       <argument type="service" id="security.helper"/>
     </service>
+    <service id="App\State\GetBookingsStateProvider" class="App\State\GetBookingsStateProvider" autowire="true" autoconfigure="true">
+      <tag name="api_platform.state_provider"/>
+      <argument type="service" id="security.helper"/>
+      <argument type="service" id="App\Repository\BookingRepository"/>
+    </service>
+    <service id="App\State\GetEmployeesByPrestataireStateProvider" class="App\State\GetEmployeesByPrestataireStateProvider" autowire="true" autoconfigure="true">
+      <tag name="api_platform.state_provider"/>
+      <argument type="service" id="App\Repository\PrestataireRepository"/>
+      <argument type="service" id="security.helper"/>
+      <argument type="service" id="App\Repository\UserRepository"/>
+    </service>
     <service id="App\State\GetEmployeesStateProvider" class="App\State\GetEmployeesStateProvider" autowire="true" autoconfigure="true">
       <tag name="api_platform.state_provider"/>
       <argument type="service" id="security.helper"/>
@@ -805,10 +887,15 @@
       <argument type="service" id="App\Repository\PrestataireRepository"/>
       <argument type="service" id="security.helper"/>
     </service>
-    <service id="App\State\GetEstablishmentStateProvider" class="App\State\GetEstablishmentStateProvider" autowire="true" autoconfigure="true">
+    <service id="App\State\GetEstablishmentsStateProvider" class="App\State\GetEstablishmentsStateProvider" autowire="true" autoconfigure="true">
       <tag name="api_platform.state_provider"/>
       <argument type="service" id="App\Repository\EstablishmentRepository"/>
       <argument type="service" id="security.helper"/>
+    </service>
+    <service id="App\State\GetOneEstablishmentStateProvider" class="App\State\GetOneEstablishmentStateProvider" autowire="true" autoconfigure="true">
+      <tag name="api_platform.state_provider"/>
+      <argument type="service" id="security.helper"/>
+      <argument type="service" id="App\Repository\EstablishmentRepository"/>
     </service>
     <service id="App\State\GetPrestatairesForUserStateProvider" class="App\State\GetPrestatairesForUserStateProvider" autowire="true" autoconfigure="true">
       <tag name="api_platform.state_provider"/>
@@ -889,7 +976,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.l.4rJYW"/>
+      <argument type="service" id=".service_locator.LWAGtDU"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -2641,7 +2728,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.l.4rJYW"/>
+      <argument type="service" id=".service_locator.LWAGtDU"/>
     </service>
     <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <argument type="service" id="request_stack"/>
@@ -4027,7 +4114,7 @@
     <service id="doctrine.orm.configuration" class="Doctrine\ORM\Configuration" abstract="true"/>
     <service id="doctrine.orm.entity_manager.abstract" class="Doctrine\ORM\EntityManager" lazy="true" abstract="true"/>
     <service id="doctrine.orm.container_repository_factory" class="Doctrine\Bundle\DoctrineBundle\Repository\ContainerRepositoryFactory">
-      <argument type="service" id=".service_locator.JPTy7x7"/>
+      <argument type="service" id=".service_locator.LeyfvDN"/>
     </service>
     <service id="doctrine.orm.manager_configurator.abstract" class="Doctrine\Bundle\DoctrineBundle\ManagerConfigurator" abstract="true">
       <argument type="collection"/>
@@ -6660,7 +6747,7 @@
       <argument key="problemCompliantErrors">false</argument>
     </service>
     <service id="api_platform.state_provider.locator" class="ApiPlatform\State\CallableProvider">
-      <argument type="service" id=".service_locator.t7NfCqw"/>
+      <argument type="service" id=".service_locator.LX5ZkG."/>
     </service>
     <service id="api_platform.state_processor.locator" class="ApiPlatform\State\CallableProcessor">
       <argument type="service" id=".service_locator.ALB1BEI"/>
@@ -8442,6 +8529,21 @@
       <argument type="service" id="vich_uploader.metadata_reader"/>
       <argument type="service" id="vich_uploader.upload_handler"/>
     </service>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\AddEstablishmentToPrestataireController" class="App\Controller\AddEstablishmentToPrestataireController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\AddEstablishmentToPrestataireController" class="App\Controller\AddEstablishmentToPrestataireController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\AddEstablishmentToPrestataireController" class="App\Controller\AddEstablishmentToPrestataireController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\AddPrestationToEstablishmentController" class="App\Controller\AddPrestationToEstablishmentController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\AddPrestationToEstablishmentController" class="App\Controller\AddPrestationToEstablishmentController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\AddPrestationToEstablishmentController" class="App\Controller\AddPrestationToEstablishmentController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\DeleteEstablishmentController" class="App\Controller\DeleteEstablishmentController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\DeleteEstablishmentController" class="App\Controller\DeleteEstablishmentController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\DeleteEstablishmentController" class="App\Controller\DeleteEstablishmentController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\DeletePrestataireController" class="App\Controller\DeletePrestataireController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\DeletePrestataireController" class="App\Controller\DeletePrestataireController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\DeletePrestataireController" class="App\Controller\DeletePrestataireController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\DeteteBookingController" class="App\Controller\DeteteBookingController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\DeteteBookingController" class="App\Controller\DeteteBookingController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\DeteteBookingController" class="App\Controller\DeteteBookingController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\GetEstablishmentsByPrestataireController" class="App\Controller\GetEstablishmentsByPrestataireController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\GetEstablishmentsByPrestataireController" class="App\Controller\GetEstablishmentsByPrestataireController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\GetEstablishmentsByPrestataireController" class="App\Controller\GetEstablishmentsByPrestataireController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -8457,6 +8559,9 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\RegistrationController" class="App\Controller\RegistrationController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\RegistrationController" class="App\Controller\RegistrationController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\RegistrationController" class="App\Controller\RegistrationController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\ResearchPrestationController" class="App\Controller\ResearchPrestationController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\ResearchPrestationController" class="App\Controller\ResearchPrestationController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\ResearchPrestationController" class="App\Controller\ResearchPrestationController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\TestController" class="App\Controller\TestController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\TestController" class="App\Controller\TestController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\TestController" class="App\Controller\TestController" autowire="true" autoconfigure="true" abstract="true"/>
@@ -8473,6 +8578,8 @@
     <service id=".abstract.instanceof.App\Repository\BookingRepository" class="App\Repository\BookingRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\CategoryRepository" class="App\Repository\CategoryRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\CategoryRepository" class="App\Repository\CategoryRepository" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\EmployeeScheduleRepository" class="App\Repository\EmployeeScheduleRepository" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Repository\EmployeeScheduleRepository" class="App\Repository\EmployeeScheduleRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\EstablishmentRepository" class="App\Repository\EstablishmentRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\EstablishmentRepository" class="App\Repository\EstablishmentRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\FeedbackRepository" class="App\Repository\FeedbackRepository" autowire="true" abstract="true"/>
@@ -8497,12 +8604,18 @@
     <service id=".abstract.instanceof.App\State\AssignManagerToEstablishmentStateProcessor" class="App\State\AssignManagerToEstablishmentStateProcessor" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.ApiPlatform\State\ProcessorInterface.0.App\State\CreateEstablishmentProcessor" class="App\State\CreateEstablishmentProcessor" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\State\CreateEstablishmentProcessor" class="App\State\CreateEstablishmentProcessor" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.ApiPlatform\State\ProviderInterface.0.App\State\GetBookingsStateProvider" class="App\State\GetBookingsStateProvider" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\State\GetBookingsStateProvider" class="App\State\GetBookingsStateProvider" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.ApiPlatform\State\ProviderInterface.0.App\State\GetEmployeesByPrestataireStateProvider" class="App\State\GetEmployeesByPrestataireStateProvider" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\State\GetEmployeesByPrestataireStateProvider" class="App\State\GetEmployeesByPrestataireStateProvider" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.ApiPlatform\State\ProviderInterface.0.App\State\GetEmployeesStateProvider" class="App\State\GetEmployeesStateProvider" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\State\GetEmployeesStateProvider" class="App\State\GetEmployeesStateProvider" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.ApiPlatform\State\ProviderInterface.0.App\State\GetEstablishmentByPrestataireStateProvider" class="App\State\GetEstablishmentByPrestataireStateProvider" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\State\GetEstablishmentByPrestataireStateProvider" class="App\State\GetEstablishmentByPrestataireStateProvider" autowire="true" autoconfigure="true" abstract="true"/>
-    <service id=".instanceof.ApiPlatform\State\ProviderInterface.0.App\State\GetEstablishmentStateProvider" class="App\State\GetEstablishmentStateProvider" autowire="true" abstract="true"/>
-    <service id=".abstract.instanceof.App\State\GetEstablishmentStateProvider" class="App\State\GetEstablishmentStateProvider" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.ApiPlatform\State\ProviderInterface.0.App\State\GetEstablishmentsStateProvider" class="App\State\GetEstablishmentsStateProvider" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\State\GetEstablishmentsStateProvider" class="App\State\GetEstablishmentsStateProvider" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.ApiPlatform\State\ProviderInterface.0.App\State\GetOneEstablishmentStateProvider" class="App\State\GetOneEstablishmentStateProvider" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\State\GetOneEstablishmentStateProvider" class="App\State\GetOneEstablishmentStateProvider" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.ApiPlatform\State\ProviderInterface.0.App\State\GetPrestatairesForUserStateProvider" class="App\State\GetPrestatairesForUserStateProvider" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\State\GetPrestatairesForUserStateProvider" class="App\State\GetPrestatairesForUserStateProvider" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.ApiPlatform\State\ProcessorInterface.0.App\State\RegisterEmployeeProcessor" class="App\State\RegisterEmployeeProcessor" autowire="true" abstract="true"/>
@@ -8917,6 +9030,39 @@
         <argument key="loader" type="service_closure" id=".errored..service_locator.y4_Zrx..Symfony\Component\Config\Loader\LoaderInterface"/>
       </argument>
     </service>
+    <service id=".service_locator.God1HrF" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="prestataire" type="service_closure" id=".errored..service_locator.God1HrF.App\Entity\Prestataire"/>
+      </argument>
+    </service>
+    <service id=".service_locator.dG3EoB7" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="establishment" type="service_closure" id=".errored..service_locator.dG3EoB7.App\Entity\Establishment"/>
+      </argument>
+    </service>
+    <service id=".service_locator.j5sevqx" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="data" type="service_closure" id=".errored..service_locator.j5sevqx.App\Entity\Establishment"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+      </argument>
+    </service>
+    <service id=".service_locator.58iSd83" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="data" type="service_closure" id=".errored..service_locator.58iSd83.App\Entity\Prestataire"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+      </argument>
+    </service>
+    <service id=".service_locator.Nwfon31" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="data" type="service_closure" id=".errored..service_locator.Nwfon31.App\Entity\Booking"/>
+        <argument key="em" type="service_closure" id="doctrine.orm.default_entity_manager"/>
+      </argument>
+    </service>
     <service id=".service_locator.PSwBGfE" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -8928,6 +9074,18 @@
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="user" type="service_closure" id=".errored..service_locator.Hz5btge.App\Entity\User"/>
+      </argument>
+    </service>
+    <service id=".service_locator.NygMs_p" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="JWTManager" type="service_closure" id="lexik_jwt_authentication.jwt_manager"/>
+      </argument>
+    </service>
+    <service id=".service_locator.U0Nbtbo" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="prestationRepository" type="service_closure" id="App\Repository\PrestationRepository"/>
       </argument>
     </service>
     <service id=".service_locator.zst5.Vd" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -8949,11 +9107,18 @@
         <argument key="uploaderService" type="service_closure" id="App\Services\UploaderService"/>
       </argument>
     </service>
-    <service id=".service_locator.l.4rJYW" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.LWAGtDU" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
+        <argument key="App\Controller\AddEstablishmentToPrestataireController::__invoke" type="service_closure" id=".service_locator.God1HrF"/>
+        <argument key="App\Controller\AddPrestationToEstablishmentController::__invoke" type="service_closure" id=".service_locator.dG3EoB7"/>
+        <argument key="App\Controller\DeleteEstablishmentController::__invoke" type="service_closure" id=".service_locator.j5sevqx"/>
+        <argument key="App\Controller\DeletePrestataireController::__invoke" type="service_closure" id=".service_locator.58iSd83"/>
+        <argument key="App\Controller\DeteteBookingController::__invoke" type="service_closure" id=".service_locator.Nwfon31"/>
         <argument key="App\Controller\GetEstablishmentsByPrestataireController::__invoke" type="service_closure" id=".service_locator.PSwBGfE"/>
         <argument key="App\Controller\MediaOploaderController::__invoke" type="service_closure" id=".service_locator.Hz5btge"/>
+        <argument key="App\Controller\PaymentController::createCheckoutSession" type="service_closure" id=".service_locator.NygMs_p"/>
+        <argument key="App\Controller\ResearchPrestationController::__invoke" type="service_closure" id=".service_locator.U0Nbtbo"/>
         <argument key="App\Controller\TestController::index" type="service_closure" id=".service_locator.zst5.Vd"/>
         <argument key="App\Controller\TestController::someAction" type="service_closure" id=".service_locator.IVGqFDR"/>
         <argument key="App\Controller\TestController::uploadFile" type="service_closure" id=".service_locator.Zx3oYFB"/>
@@ -8961,10 +9126,23 @@
         <argument key="App\Kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="kernel::loadRoutes" type="service_closure" id=".service_locator.y4_Zrx."/>
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.y4_Zrx."/>
+        <argument key="App\Controller\AddEstablishmentToPrestataireController:__invoke" type="service_closure" id=".service_locator.God1HrF"/>
+        <argument key="App\Controller\AddEstablishmentToPrestataireController" type="service_closure" id=".service_locator.God1HrF"/>
+        <argument key="App\Controller\AddPrestationToEstablishmentController:__invoke" type="service_closure" id=".service_locator.dG3EoB7"/>
+        <argument key="App\Controller\AddPrestationToEstablishmentController" type="service_closure" id=".service_locator.dG3EoB7"/>
+        <argument key="App\Controller\DeleteEstablishmentController:__invoke" type="service_closure" id=".service_locator.j5sevqx"/>
+        <argument key="App\Controller\DeleteEstablishmentController" type="service_closure" id=".service_locator.j5sevqx"/>
+        <argument key="App\Controller\DeletePrestataireController:__invoke" type="service_closure" id=".service_locator.58iSd83"/>
+        <argument key="App\Controller\DeletePrestataireController" type="service_closure" id=".service_locator.58iSd83"/>
+        <argument key="App\Controller\DeteteBookingController:__invoke" type="service_closure" id=".service_locator.Nwfon31"/>
+        <argument key="App\Controller\DeteteBookingController" type="service_closure" id=".service_locator.Nwfon31"/>
         <argument key="App\Controller\GetEstablishmentsByPrestataireController:__invoke" type="service_closure" id=".service_locator.PSwBGfE"/>
         <argument key="App\Controller\GetEstablishmentsByPrestataireController" type="service_closure" id=".service_locator.PSwBGfE"/>
         <argument key="App\Controller\MediaOploaderController:__invoke" type="service_closure" id=".service_locator.Hz5btge"/>
         <argument key="App\Controller\MediaOploaderController" type="service_closure" id=".service_locator.Hz5btge"/>
+        <argument key="App\Controller\PaymentController:createCheckoutSession" type="service_closure" id=".service_locator.NygMs_p"/>
+        <argument key="App\Controller\ResearchPrestationController:__invoke" type="service_closure" id=".service_locator.U0Nbtbo"/>
+        <argument key="App\Controller\ResearchPrestationController" type="service_closure" id=".service_locator.U0Nbtbo"/>
         <argument key="App\Controller\TestController:index" type="service_closure" id=".service_locator.zst5.Vd"/>
         <argument key="App\Controller\TestController:someAction" type="service_closure" id=".service_locator.IVGqFDR"/>
         <argument key="App\Controller\TestController:uploadFile" type="service_closure" id=".service_locator.Zx3oYFB"/>
@@ -9259,11 +9437,12 @@
         <argument key="vich_uploader.listener.upload.media_uploads" type="service_closure" id="vich_uploader.listener.upload.media_uploads"/>
       </argument>
     </service>
-    <service id=".service_locator.JPTy7x7" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.LeyfvDN" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Repository\BookingRepository" type="service_closure" id="App\Repository\BookingRepository"/>
         <argument key="App\Repository\CategoryRepository" type="service_closure" id="App\Repository\CategoryRepository"/>
+        <argument key="App\Repository\EmployeeScheduleRepository" type="service_closure" id="App\Repository\EmployeeScheduleRepository"/>
         <argument key="App\Repository\EstablishmentRepository" type="service_closure" id="App\Repository\EstablishmentRepository"/>
         <argument key="App\Repository\FeedbackRepository" type="service_closure" id="App\Repository\FeedbackRepository"/>
         <argument key="App\Repository\MediaRepository" type="service_closure" id="App\Repository\MediaRepository"/>
@@ -9671,6 +9850,36 @@
         <argument key="web_link.http_header_serializer" type="service_closure" id="web_link.http_header_serializer" on-invalid="ignore"/>
       </argument>
     </service>
+    <service id=".service_locator.O2p6Lk7.App\Controller\AddEstablishmentToPrestataireController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\AddEstablishmentToPrestataireController"/>
+      <argument>App\Controller\AddEstablishmentToPrestataireController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.O2p6Lk7" method="withContext"/>
+    </service>
+    <service id=".service_locator.O2p6Lk7.App\Controller\AddPrestationToEstablishmentController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\AddPrestationToEstablishmentController"/>
+      <argument>App\Controller\AddPrestationToEstablishmentController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.O2p6Lk7" method="withContext"/>
+    </service>
+    <service id=".service_locator.O2p6Lk7.App\Controller\DeleteEstablishmentController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\DeleteEstablishmentController"/>
+      <argument>App\Controller\DeleteEstablishmentController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.O2p6Lk7" method="withContext"/>
+    </service>
+    <service id=".service_locator.O2p6Lk7.App\Controller\DeletePrestataireController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\DeletePrestataireController"/>
+      <argument>App\Controller\DeletePrestataireController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.O2p6Lk7" method="withContext"/>
+    </service>
+    <service id=".service_locator.O2p6Lk7.App\Controller\DeteteBookingController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\DeteteBookingController"/>
+      <argument>App\Controller\DeteteBookingController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.O2p6Lk7" method="withContext"/>
+    </service>
     <service id=".service_locator.O2p6Lk7.App\Controller\GetEstablishmentsByPrestataireController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\GetEstablishmentsByPrestataireController"/>
       <argument>App\Controller\GetEstablishmentsByPrestataireController</argument>
@@ -9698,6 +9907,12 @@
     <service id=".service_locator.O2p6Lk7.App\Controller\RegistrationController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\RegistrationController"/>
       <argument>App\Controller\RegistrationController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.O2p6Lk7" method="withContext"/>
+    </service>
+    <service id=".service_locator.O2p6Lk7.App\Controller\ResearchPrestationController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\ResearchPrestationController"/>
+      <argument>App\Controller\ResearchPrestationController</argument>
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.O2p6Lk7" method="withContext"/>
     </service>
@@ -9829,16 +10044,19 @@
         <argument key="security.user_checker" type="service_closure" id="security.user_checker"/>
       </argument>
     </service>
-    <service id=".service_locator.t7NfCqw" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.LX5ZkG." class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="ApiPlatform\Doctrine\Orm\State\CollectionProvider" type="service_closure" id="api_platform.doctrine.orm.state.collection_provider"/>
         <argument key="ApiPlatform\Doctrine\Orm\State\ItemProvider" type="service_closure" id="api_platform.doctrine.orm.state.item_provider"/>
         <argument key="ApiPlatform\State\CreateProvider" type="service_closure" id="api_platform.state_provider.create"/>
         <argument key="ApiPlatform\State\ObjectProvider" type="service_closure" id="api_platform.state_provider.object"/>
+        <argument key="App\State\GetBookingsStateProvider" type="service_closure" id="App\State\GetBookingsStateProvider"/>
+        <argument key="App\State\GetEmployeesByPrestataireStateProvider" type="service_closure" id="App\State\GetEmployeesByPrestataireStateProvider"/>
         <argument key="App\State\GetEmployeesStateProvider" type="service_closure" id="App\State\GetEmployeesStateProvider"/>
         <argument key="App\State\GetEstablishmentByPrestataireStateProvider" type="service_closure" id="App\State\GetEstablishmentByPrestataireStateProvider"/>
-        <argument key="App\State\GetEstablishmentStateProvider" type="service_closure" id="App\State\GetEstablishmentStateProvider"/>
+        <argument key="App\State\GetEstablishmentsStateProvider" type="service_closure" id="App\State\GetEstablishmentsStateProvider"/>
+        <argument key="App\State\GetOneEstablishmentStateProvider" type="service_closure" id="App\State\GetOneEstablishmentStateProvider"/>
         <argument key="App\State\GetPrestatairesForUserStateProvider" type="service_closure" id="App\State\GetPrestatairesForUserStateProvider"/>
         <argument key="api_platform.doctrine.orm.state.collection_provider" type="service_closure" id="api_platform.doctrine.orm.state.collection_provider"/>
         <argument key="api_platform.doctrine.orm.state.item_provider" type="service_closure" id="api_platform.doctrine.orm.state.item_provider"/>
@@ -10314,6 +10532,21 @@
     </service>
     <service id=".errored..service_locator.y4_Zrx..Symfony\Component\Config\Loader\LoaderInterface" class="Symfony\Component\Config\Loader\LoaderInterface">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.y4_Zrx.&quot;: it needs an instance of &quot;Symfony\Component\Config\Loader\LoaderInterface&quot; but this type has been excluded from autowiring."/>
+    </service>
+    <service id=".errored..service_locator.God1HrF.App\Entity\Prestataire" class="App\Entity\Prestataire">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.God1HrF&quot;: it needs an instance of &quot;App\Entity\Prestataire&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.dG3EoB7.App\Entity\Establishment" class="App\Entity\Establishment">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.dG3EoB7&quot;: it needs an instance of &quot;App\Entity\Establishment&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.j5sevqx.App\Entity\Establishment" class="App\Entity\Establishment">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.j5sevqx&quot;: it needs an instance of &quot;App\Entity\Establishment&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.58iSd83.App\Entity\Prestataire" class="App\Entity\Prestataire">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.58iSd83&quot;: it needs an instance of &quot;App\Entity\Prestataire&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
+    </service>
+    <service id=".errored..service_locator.Nwfon31.App\Entity\Booking" class="App\Entity\Booking">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.Nwfon31&quot;: it needs an instance of &quot;App\Entity\Booking&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
     </service>
     <service id=".errored..service_locator.PSwBGfE.App\Entity\Prestataire" class="App\Entity\Prestataire">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.PSwBGfE&quot;: it needs an instance of &quot;App\Entity\Prestataire&quot; but this type has been excluded in &quot;config/services.yaml&quot;."/>
@@ -11498,7 +11731,7 @@
     <service id="Vich\UploaderBundle\Form\Type\VichImageType" alias="vich_uploader.form.type.image"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.7nzbL4K" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.l.4rJYW"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.LWAGtDU"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.KLVvNIq"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="api_platform.name_converter" alias="serializer.name_converter.metadata_aware"/>
@@ -11522,7 +11755,7 @@
     <service id=".service_locator.o.uf2zi" alias=".service_locator.7nzbL4K"/>
     <service id=".service_locator.qSfnJmf" alias=".service_locator.PSwBGfE"/>
     <service id=".service_locator.BrqFzs1" alias=".service_locator.Zx3oYFB"/>
-    <service id=".service_locator.nStA5kO" alias=".service_locator.l.4rJYW"/>
+    <service id=".service_locator.ztMX7Fg" alias=".service_locator.LWAGtDU"/>
     <service id=".service_locator.BFrsqsn" alias=".service_locator.F9PKc.7"/>
     <service id=".service_locator.0ZtVDyf" alias=".service_locator.YdAW.ov"/>
     <service id=".service_locator.5kurTym" alias=".service_locator.Iv5zWDQ"/>
@@ -11612,8 +11845,15 @@
     <service id="api_platform.metadata.resource.metadata_collection_factory.cached.inner" alias="api_platform.doctrine.orm.metadata.resource.metadata_collection_factory"/>
     <service id=".service_locator.Xbsa8iG" alias="api_platform.graphql.resolver_locator"/>
     <service id=".service_locator.gFlme_s" alias=".service_locator.y4_Zrx."/>
+    <service id=".service_locator.p6CkUtt" alias=".service_locator.God1HrF"/>
+    <service id=".service_locator.N04y7t0" alias=".service_locator.dG3EoB7"/>
+    <service id=".service_locator.Yd64Y7P" alias=".service_locator.j5sevqx"/>
+    <service id=".service_locator._HPndik" alias=".service_locator.58iSd83"/>
+    <service id=".service_locator.1KBO9Vj" alias=".service_locator.Nwfon31"/>
     <service id=".service_locator.x4ClJ5i" alias=".service_locator.PSwBGfE"/>
     <service id=".service_locator.EmZ4cZI" alias=".service_locator.Hz5btge"/>
+    <service id=".service_locator.ImnDn4v" alias=".service_locator.NygMs_p"/>
+    <service id=".service_locator.LtBa4Mm" alias=".service_locator.U0Nbtbo"/>
     <service id=".service_locator.9UcgfP1" alias=".service_locator.zst5.Vd"/>
     <service id=".service_locator.3RZtum9" alias=".service_locator.IVGqFDR"/>
     <service id=".service_locator.1x49IOX" alias=".service_locator.Zx3oYFB"/>
@@ -11621,7 +11861,7 @@
     <service id=".service_locator.B_yLtTQ" alias=".service_locator.Lo8jEUu"/>
     <service id=".service_locator.u6DWx23" alias=".service_locator.cXsfP3P"/>
     <service id=".service_locator.BlxN3Cw" alias=".service_locator.LrCXAmX"/>
-    <service id=".service_locator.bPUbmxR" alias=".service_locator.t7NfCqw"/>
+    <service id=".service_locator.xaTr.JA" alias=".service_locator.LX5ZkG."/>
     <service id=".service_locator.Pnnkjt." alias=".service_locator.ALB1BEI"/>
   </services>
 </container>

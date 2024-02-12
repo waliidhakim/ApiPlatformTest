@@ -3,6 +3,7 @@ import React from 'react';
 import { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Navbar from '../../../components/NavBar/Navbar';
 
 export default function page() {
     const [isLoading, setIsLoading] = useState(false);
@@ -12,7 +13,8 @@ export default function page() {
         password: "",
         confirmPassword : "",
         firstname: "",
-        lastname: ""
+        lastname: "",
+        address: ""
     }
 
     const [formData, setFormData] = useState(initalFormData)    
@@ -55,34 +57,40 @@ export default function page() {
 
   return (
     <>  
+        <Navbar></Navbar>
         <ToastContainer />
         <div className="card">
-                <h4 className="card-header">Register</h4>
+                <h2 className="card-header">Créer un compte</h2>
                 <div className="card-body">
                     <form onSubmit={ handleSubmit }>
                         <div className="form-group">
                             <label>Nom : </label>
-                            <input name="firstname" type="text" onChange={handleChange} placeholder='Enter your firstname'/>
+                            <input name="firstname" type="text" onChange={handleChange} placeholder='Entrer votre nom'/>
                             
                         </div>
                         <div className="form-group">
                             <label>Prenom</label>
-                            <input name="lastname" type="text"  onChange={handleChange} placeholder='Enter your lastname'/>
+                            <input name="lastname" type="text"  onChange={handleChange} placeholder='Entrez votre prénom'/>
                             
                         </div>
                         <div className="form-group">
                             <label>Email</label>
-                            <input name="email" type="text" onChange={handleChange} placeholder='Enter your email adress' />
+                            <input name="email" type="text" onChange={handleChange} placeholder='Entrer votre adresse email' />
+                            
+                        </div>
+                        <div className="form-group">
+                            <label>Adresse</label>
+                            <input name="address" type="text" onChange={handleChange} placeholder='Entrer votre adresse' />
                             
                         </div>
                         <div className="form-group">
                             <label>Mot de passe</label>
-                            <input name="password" type="password" onChange={handleChange} placeholder='Enter your password' />
+                            <input name="password" type="password" onChange={handleChange} placeholder='Entrez votre mot de passe' />
                         </div>
 
                         <div className="form-group">
                             <label>Confirmer le mot de passe</label>
-                            <input name="confirmPassword" type="password" onChange={handleChange} placeholder='Confirm your password' />
+                            <input name="confirmPassword" type="password" onChange={handleChange} placeholder='Confirmer votre mot de passe' />
                         </div>
 
                         <button className="btn btn-primary">

@@ -10,9 +10,9 @@ use App\Repository\PrestataireRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class GetPrestatairesForUserStateProvider implements ProviderInterface
+readonly class GetPrestatairesForUserStateProvider implements ProviderInterface
 {
-    public function __construct(private readonly Security $security, private readonly PrestataireRepository $prestataireRepository)
+    public function __construct(private Security $security, private PrestataireRepository $prestataireRepository)
     {
     }
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null

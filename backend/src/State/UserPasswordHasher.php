@@ -41,6 +41,7 @@ final readonly class UserPasswordHasher implements ProcessorInterface
         $user->setFirstname($data->getFirstname());
         $user->setLastname($data->getLastname());
         $user->setEmail($data->getEmail());
+        $user->setAddress($data->getAddress());
 
         $hashedPassword = $this->passwordHasher->hashPassword(
             $user,

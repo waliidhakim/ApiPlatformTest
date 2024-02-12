@@ -7,7 +7,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\Entity\User;
 use App\Repository\EstablishmentRepository;
 use Symfony\Bundle\SecurityBundle\Security;
-class GetEstablishmentStateProvider implements ProviderInterface
+class GetEstablishmentsStateProvider implements ProviderInterface
 {
 
     public function __construct(private readonly EstablishmentRepository $establishmentRepository, private readonly Security $security)

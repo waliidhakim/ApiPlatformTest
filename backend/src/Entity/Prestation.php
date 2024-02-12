@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\ResearchPrestationController;
 use App\Repository\PrestationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,7 +20,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
     operations: [
         new Get(
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_USER')",
             securityMessage : "You don't have permission to perform this action",
             normalizationContext :  ['groups' => ['prestation:read']]
         ),
@@ -34,6 +35,20 @@ use Symfony\Component\Serializer\Annotation\Groups;
             securityMessage : "You don't have permission to perform this action",
             uriTemplate: '/prestations/public',
             normalizationContext :  ['groups' => ['prestation:collection:read:public']]
+        ),
+
+        new Post(
+            uriTemplate: '/prestations/research',
+            controller: ResearchPrestationController::class,
+            read: false,
+            output: false,
+            denormalizationContext: ['groups' => ['prestation:search']],
+            normalizationContext: ['groups' => ['prestation:collection:read']],
+//            security: "is_granted('ROLE_PUBLIC_ACCESS')",
+            openapiContext: [
+                'summary' => 'Recherche des prestations par critères.',
+                'description' => 'Recherche des prestations par nom, catégorie et prix.',
+            ]
         ),
 
         new Post(
@@ -58,19 +73,43 @@ class Prestation
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestation:collection:read','prestation:read','prestation:collection:read:public'])]
+    #[Groups([
+        'prestation:collection:read',
+        'prestation:read',
+        'prestation:collection:read:public',
+        'establishment:read',
+        'prestation:search',
+        'booking:read'
+    ])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['prestation:collection:read','prestation:read','prestation:collection:read:public'])]
+    #[Groups([
+        'prestation:collection:read',
+        'prestation:read',
+        'prestation:collection:read:public',
+        'establishment:read',
+    ])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['prestation:collection:read','prestation:read','prestation:collection:read:public'])]
+    #[Groups([
+        'prestation:collection:read',
+        'prestation:read',
+        'prestation:collection:read:public',
+        'establishment:read'
+    ])]
     private ?int $duration = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['prestation:collection:read','prestation:read','prestation:collection:read:public'])]
+    #[Groups([
+        'prestation:collection:read',
+        'prestation:read',
+        'prestation:collection:read:public',
+        'establishment:read',
+        'prestation:search',
+        'booking:read'
+    ])]
     private ?float $price = null;
 
     #[ORM\ManyToOne(inversedBy: 'prestations')]
@@ -78,7 +117,12 @@ class Prestation
     private ?Establishment $establishment = null;
 
     #[ORM\ManyToOne(inversedBy: 'prestations')]
-    #[Groups(['prestation:collection:read','prestation:collection:read:public'])]
+    #[Groups([
+        'prestation:collection:read',
+        'prestation:collection:read:public',
+        'establishment:read',
+        'prestation:search'
+    ])]
     private ?Category $category = null;
 
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Booking::class)]
@@ -89,6 +133,20 @@ class Prestation
 
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
     private Collection $feedback;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?Media $media = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups([
+        'prestation:collection:read',
+        'prestation:read',
+        'prestation:collection:read:public',
+        'establishment:read',
+        'prestation:search',
+        'booking:read'
+    ])]
+    private ?string $image = null;
 
     public function __construct()
     {
@@ -260,6 +318,30 @@ class Prestation
                 $feedback->setPrestation(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getMedia(): ?Media
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?Media $media): static
+    {
+        $this->media = $media;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }

@@ -36,9 +36,15 @@ export default function Navbar() {
         {user.role == "ROLE_ADMIN" ? <Link href="/admin"> Admin Section </Link> : '' }
         
         {user.role == "ROLE_PRESTATAIRE" ? <Link href={`/prestataire/${localStorage.getItem('userId')}/my_section`}> Espace Prestataire </Link> : '' }
+
+        {user.role == "ROLE_MANAGER" ? <Link href={`/manager`}> Espace Manager </Link> : '' }
+
+        {user.role == "ROLE_EMPLOYEE" ? <Link href={`/employee`}> Espace Employée </Link> : '' }
         
         {user.role == "ROLE_USER" ? <Link href="/prestataire/ajouter_prestataire"> Devenir Prestataire </Link> : '' }
         
+        {user.role == "ROLE_USER" ? <Link href="/reservations"> Mes réservations </Link> : '' }
+
         {user.role != "ROLE_PUBLIC_ACCESS" ? <Link href="/profile"> Profile </Link> : '' }
         
         

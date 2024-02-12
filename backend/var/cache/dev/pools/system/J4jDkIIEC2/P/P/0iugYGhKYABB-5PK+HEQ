@@ -325,8 +325,16 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                 27 => null,
             ],
             'normalizationContext' => [
-                2 => null,
-                4 => null,
+                2 => [
+                    'groups' => [
+                        'booking:read',
+                    ],
+                ],
+                4 => [
+                    'groups' => [
+                        'booking:read',
+                    ],
+                ],
                 null,
                 7 => null,
                 null,
@@ -339,9 +347,13 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
             'denormalizationContext' => [
                 2 => null,
                 4 => null,
-                null,
+                [
+                    'groups' => [
+                        'booking:update',
+                    ],
+                ],
                 7 => [
-                    'bookin:create',
+                    'booking:create',
                 ],
                 null,
                 11 => null,
@@ -555,11 +567,11 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                 27 => null,
             ],
             'security' => [
-                2 => 'is_granted(\'ROLE_ADMIN\')',
-                4 => 'is_granted(\'ROLE_ADMIN\')',
-                null,
+                2 => 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_USER\') and object.getBookedBy() == user)',
+                4 => 'is_granted(\'ROLE_USER\')',
+                'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_USER\') and object.getBookedBy() == user)',
                 7 => null,
-                'is_granted(\'ROLE_ADMIN\')',
+                'is_granted(\'ROLE_USER\')',
                 11 => null,
                 15 => null,
                 19 => null,
@@ -569,7 +581,7 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
             'securityMessage' => [
                 2 => 'You don\'t have permission to perform this action',
                 4 => 'You don\'t have permission to perform this action',
-                null,
+                'You don\'t have permission to perform this action',
                 7 => null,
                 'You don\'t have permission to perform this action',
                 11 => null,
@@ -628,7 +640,7 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
             ],
             'provider' => [
                 2 => 'ApiPlatform\\Doctrine\\Orm\\State\\ItemProvider',
-                4 => 'ApiPlatform\\Doctrine\\Orm\\State\\CollectionProvider',
+                4 => 'App\\State\\GetBookingsStateProvider',
                 'ApiPlatform\\Doctrine\\Orm\\State\\ItemProvider',
                 7 => 'ApiPlatform\\Doctrine\\Orm\\State\\ItemProvider',
                 'ApiPlatform\\Doctrine\\Orm\\State\\ItemProvider',
@@ -1088,7 +1100,7 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                 4 => null,
                 null,
                 7 => null,
-                null,
+                'App\\Controller\\DeteteBookingController',
             ],
             'cacheHeaders' => [
                 2 => [

@@ -67,13 +67,60 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 //        ;
 //    }
 
-    public function findByRoles($role1, $role2)
+    public function findByRoles($role)
     {
         $qb = $this->createQueryBuilder('u');
 
-        $qb->where('u.firstname = :role1')
+        $qb->where('u.role = :role1')
             ->setParameter('role1', 'presta2');
 
         return $qb->getQuery()->getResult();
     }
+
+
+    public function findUsersWithRoleEmployee(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where("JSONB_ARRAY_ELEMENTS_TEXT(u.roles)::text LIKE '%ROLE_EMPLOYEE%'")
+            ->getQuery()
+            ->getResult();
+    }
+
+//    public function findByRole(string $role): array
+//    {
+//        // The ResultSetMapping maps the SQL result to entities
+//        $rsm = $this->createResultSetMappingBuilder('u');
+//
+//        $rawQuery = sprintf(
+//            'SELECT %s
+//        FROM user u
+//        WHERE u.roles::jsonb ?? :role',
+//            $rsm->generateSelectClause()
+//        );
+//
+//        $query = $this->getEntityManager()->createNativeQuery($rawQuery, $rsm);
+//        $query->setParameter('role', $role);
+//        return $query->getResult();
+//    }
+
+
+    public function findByRole(string $role): array
+    {
+        $rsm = $this->createResultSetMappingBuilder('u');
+        $rsm->addRootEntityFromClassMetadata(User::class, 'u');
+
+        // Assurez-vous que les noms des colonnes dans la requête correspondent à ceux dans votre base de données.
+        $rawQuery = sprintf(
+            'SELECT %s
+        FROM "user" u
+        WHERE u.roles::jsonb ?? :role',
+            $rsm->generateSelectClause()
+        );
+
+        $query = $this->getEntityManager()->createNativeQuery($rawQuery, $rsm);
+        $query->setParameter('role', $role);
+        return $query->getResult();
+    }
+
+
 }

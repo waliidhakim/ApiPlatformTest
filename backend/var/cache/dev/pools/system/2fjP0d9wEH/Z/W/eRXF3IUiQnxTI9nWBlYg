@@ -24,6 +24,8 @@ return [PHP_INT_MAX, static function () { return \Symfony\Component\VarExporter\
                     'status',
                     'image',
                     'media',
+                    'address',
+                    'employeeSchedules',
                     'userIdentifier',
                 ],
             ],

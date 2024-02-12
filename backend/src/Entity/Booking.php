@@ -8,35 +8,44 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\DeteteBookingController;
 use App\Repository\BookingRepository;
+use App\State\GetBookingsStateProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
 #[ApiResource(
 
     operations: [
         new Get(
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_USER') and object.getBookedBy() == user)",
             securityMessage : "You don't have permission to perform this action",
+            normalizationContext: ['groups' => ['booking:read']]
         ),
         new GetCollection(
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_USER')",
             securityMessage : "You don't have permission to perform this action",
+            provider: GetBookingsStateProvider::class,
+            normalizationContext: ['groups' => ['booking:read']]
         ),
 //        new Put(
 //            security: "is_granted('ROLE_USER')",
 //        ),
         new Patch (
-
+            security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_USER') and object.getBookedBy() == user)",
+            securityMessage : "You don't have permission to perform this action",
+            denormalizationContext: ['groups' => ['booking:update']]
         ),
         new Post(
-            denormalizationContext : ['bookin:create']
+            denormalizationContext : ['booking:create']
         ),
 
         new Delete(
-            security: "is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_USER')",
             securityMessage : "You don't have permission to perform this action",
+            controller: DeteteBookingController::class
         )
 
     ],
@@ -48,18 +57,23 @@ class Booking
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['booking:read'])]
+
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['booking:read', 'booking:update'])]
     private ?\DateTimeInterface $bookingDate = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
+    #[Groups(['booking:read'])]
     private ?User $bookedBy = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
+    #[Groups(['booking:read'])]
     private ?Prestation $prestation = null;
 
     #[ORM\ManyToOne(inversedBy: 'booking')]
