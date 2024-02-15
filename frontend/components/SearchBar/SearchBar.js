@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import UserLocationMap from '../../components/UserLocationMap/UserLocationMap';
 import fetchData from '@/app/lib/fetchData';
+import './SearchBar.css'
 
 const SearchBar = ({ onSearch }) => {
   const [searchValue, setSearchValue] = useState('');
